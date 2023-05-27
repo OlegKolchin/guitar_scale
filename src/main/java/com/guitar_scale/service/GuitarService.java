@@ -1,12 +1,9 @@
 package com.guitar_scale.service;
 
-import com.guitar_scale.model.BasicNotes;
-import com.guitar_scale.model.Scale;
-import com.guitar_scale.model.Tune;
-import com.guitar_scale.repository.BasicNotesRepository;
-import com.guitar_scale.repository.NotesRepository;
-import com.guitar_scale.repository.ScaleRepository;
-import com.guitar_scale.repository.TuneRepository;
+import com.guitar_scale.domain.BasicNote;
+import com.guitar_scale.domain.Tuning;
+import com.guitar_scale.repository.BasicNoteRepository;
+import com.guitar_scale.repository.TuningRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,35 +12,47 @@ import java.util.Optional;
 
 @Service
 public class GuitarService {
-    private final BasicNotesRepository basicNotesRepository;
-    private final NotesRepository notesRepository;
-    private final ScaleRepository scaleRepository;
-    private final TuneRepository tuneRepository;
+    private final BasicNoteRepository basicNoteRepository;
+    private final TuningRepository tuningRepository;
+//    private final NotesRepository notesRepository;
+//    private final ScaleRepository scaleRepository;
+//    private final TuneRepository tuneRepository;
 
-    public GuitarService(BasicNotesRepository basicNotesRepository, NotesRepository notesRepository, ScaleRepository scaleRepository, TuneRepository tuneRepository) {
-        this.basicNotesRepository = basicNotesRepository;
-        this.notesRepository = notesRepository;
-        this.scaleRepository = scaleRepository;
-        this.tuneRepository = tuneRepository;
+    public GuitarService(BasicNoteRepository basicNoteRepository, TuningRepository tuningRepository) {
+        this.basicNoteRepository = basicNoteRepository;
+//        this.notesRepository = notesRepository;
+//        this.scaleRepository = scaleRepository;
+//        this.tuneRepository = tuneRepository;
+        this.tuningRepository = tuningRepository;
     }
 
-    public List<BasicNotes> getAllBasicNotes() {
-        List<BasicNotes> basicNotes = new ArrayList<>();
-        basicNotesRepository.findAll().forEach(basicNotes :: add);
+    public List<BasicNote> getAllBasicNotes() {
+        List<BasicNote> basicNotes = new ArrayList<>();
+        basicNoteRepository.findAll().forEach(basicNotes::add);
         return basicNotes;
     }
 
-    public Optional<BasicNotes> getBasicNoteByName(String noteName) {
-        return basicNotesRepository.findById(noteName);
+    public Optional<BasicNote> getBasicNoteByName(String noteName) {
+        return basicNoteRepository.findById(noteName);
     }
 
-    public void saveTune(ArrayList<Tune> tune) {
-        tuneRepository.saveAll(tune);
+    public List<Tuning> getAllTuning() {
+        List<Tuning> tuningLst = new ArrayList<>();
+        tuningRepository.findAll().forEach(tuningLst::add);
+        return tuningLst;
     }
 
-    public List<Tune> getTuneByName(String name) {
-        return tuneRepository.getTuneByTuneName(name);
+    public void saveTuning(Tuning tuning) {
+        tuningRepository.save(tuning);
     }
+
+//    public void saveTune(ArrayList<Tune> tune) {
+//        tuneRepository.saveAll(tune);
+//    }
+//
+//    public List<Tune> getTuneByName(String name) {
+//        return tuneRepository.getTuneByTuneName(name);
+//    }
 
 
 }

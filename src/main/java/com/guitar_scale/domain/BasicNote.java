@@ -1,4 +1,4 @@
-package com.guitar_scale.model;
+package com.guitar_scale.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,16 +9,16 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "basic_notes")
-public class BasicNotes {
+@Table(name = "basic_note")
+public class BasicNote {
     @Column(unique = true, name = "note_name")
     @Id
     private String noteName;
 
     @Column(unique = true, name = "basic_pos")
-    private Integer basicPos;//ssss
+    private Integer basicPos;
 
-    public BasicNotes(String noteName, Integer basicPos) {
+    public BasicNote(String noteName, Integer basicPos) {
         this.noteName = noteName;
         this.basicPos = basicPos;
     }
