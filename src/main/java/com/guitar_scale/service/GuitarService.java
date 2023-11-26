@@ -45,6 +45,10 @@ public class GuitarService {
         return tunings;
     }
 
+    public Tuning getTuningByName(String tuningName) {
+        return tuningRepository.findById(tuningName).get();
+    }
+
     public void saveTuning(Tuning tuning) {
         tuningRepository.save(tuning);
     }

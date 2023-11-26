@@ -23,6 +23,11 @@ public class TuningController {
         return guitarService.getAllTuning();
     }
 
+    @GetMapping("/byName")
+    public Tuning getTuningByName(@RequestParam String tuningName) {
+        return guitarService.getTuningByName(tuningName);
+    }
+
     @PostMapping
     public void saveTuning(@RequestBody Tuning tuning) {
         String s = "s";
