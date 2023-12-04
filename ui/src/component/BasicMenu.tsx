@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import {MainButton} from '../domain/MainButton';
 import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
+import BubbleChartIcon from '@mui/icons-material/BubbleChart';
 import {ReactComponent as GuitarIcon} from './icons/electric-guitar.svg';
 
 export default function BasicButtons() {
@@ -18,7 +19,7 @@ export default function BasicButtons() {
             <Stack spacing={2} direction="row">
                 <MainButton variant="contained" endIcon ={<MusicNoteOutlinedIcon color={"success"}/>}>Scale</MainButton>
                 <MainButton variant="contained" endIcon = {<GuitarIcon/>}>Tuning</MainButton>
-                <MainButton variant="contained">Intervals</MainButton>
+                <MainButton variant="contained" endIcon = {<BubbleChartIcon color={"secondary"}/>}>Intervals</MainButton>
             </Stack>
         </Box>
     );

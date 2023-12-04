@@ -5,11 +5,14 @@ import Sidebar from "./component/Sidebar";
 import BasicMenu from "./component/BasicMenu"
 import GuitarFretboard from "./component/GuitarFretboard";
 
+
 function App() {
   return (
     <div className="App">
       <BasicMenu></BasicMenu>
+      {/*<SimpleContainer></SimpleContainer>*/}
       <GuitarFretboard></GuitarFretboard>
+      {/*<NickelString></NickelString>*/}
       {/*<Sidebar></Sidebar>*/}
       {/*<header className="App-header">*/}
       {/*  <img src={logo} className="App-logo" alt="logo" />*/}
