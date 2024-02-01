@@ -4,7 +4,7 @@ import './App.css';
 import Sidebar from "./component/Sidebar";
 import BasicMenu from "./component/BasicMenu"
 import GuitarFretboard from "./component/GuitarFretboard";
-
+import {MusicNote} from "./domain/MusicNote";
 
 function App() {
   return (
@@ -12,6 +12,9 @@ function App() {
       <BasicMenu></BasicMenu>
       {/*<SimpleContainer></SimpleContainer>*/}
       <GuitarFretboard></GuitarFretboard>
+        <MusicNote noteName={'S'} noteScalePosition={'2'}></MusicNote>
+        {/*<MusicNote></MusicNote>*/}
+        {/*<MusicNote></MusicNote>*/}
       {/*<NickelString></NickelString>*/}
       {/*<Sidebar></Sidebar>*/}
       {/*<header className="App-header">*/}

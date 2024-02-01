@@ -2,12 +2,12 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import woodTexture from '../assets/material/wooden-textured-background.jpg';
 
-interface GuitarNeckTempProps {
+interface GuitarNeckProps {
     children?: React.ReactNode;
     numberOfStrings?: number; // New prop for the number of strings
 }
 
-const GuitarNeck: React.FC<GuitarNeckTempProps> = ({ children, numberOfStrings = 6 }) =>  {
+const GuitarNeck: React.FC<GuitarNeckProps> = ({ children, numberOfStrings = 6 }) =>  {
     const heightBasedOnStrings = `${numberOfStrings * 3.5}vh`; // Example calculation, adjust as needed
 
     return (

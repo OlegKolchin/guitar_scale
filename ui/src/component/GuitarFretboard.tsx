@@ -12,7 +12,7 @@ export default function GuitarFretboard() {
         <GuitarNeck numberOfStrings={numberOfStrings}>
             <Box sx={{ width: '1%' }} /> {/* Empty Box for spacing */}
             {Array.from({ length: 15 }).map((_, index) => (
-                <StainlessFret key={`fret-${index}`} />
+                <StainlessFret key={`fret-${index}`}/>
             ))}
             {Array.from({ length: numberOfStrings }).map((_, index) => (
                 <NickelString
