@@ -21,7 +21,4 @@ public class Scale {
     private String degree5;
     private String degree6;
     private String degree7;
-
-
-
 }

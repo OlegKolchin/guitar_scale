@@ -1,36 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
 import './App.css';
-import Sidebar from "./component/Sidebar";
 import BasicMenu from "./component/BasicMenu"
 import GuitarFretboard from "./component/GuitarFretboard";
-import {MusicNote} from "./domain/MusicNote";
+import TuningChip from "./domain/TuningChip";
+import { useDefaultSettings } from './context/DefaultSettingsContext';
+
+import {Tuning} from "./interface/Tuning";
+import LoadingElement from "./component/LoadingElement";
+import {FretBoard} from "./interface/FretBoard";
+
+
 
 function App() {
-  return (
+
+    const{defaultSettings, tuning, fretBoard, isLoading, isTuningLoading, isFretBoardLoading} = useDefaultSettings();
+    const numberOfStrings = defaultSettings.numberOfStrings;
+    const tuningName = defaultSettings.tuningName;
+
+    if (isLoading || isTuningLoading || isFretBoardLoading) {
+        return LoadingElement();
+    }
+
+
+    return (
     <div className="App">
       <BasicMenu></BasicMenu>
-      {/*<SimpleContainer></SimpleContainer>*/}
-      <GuitarFretboard></GuitarFretboard>
-        <MusicNote noteName={'S'} noteScalePosition={'2'}></MusicNote>
-        {/*<MusicNote></MusicNote>*/}
-        {/*<MusicNote></MusicNote>*/}
-      {/*<NickelString></NickelString>*/}
-      {/*<Sidebar></Sidebar>*/}
-      {/*<header className="App-header">*/}
-      {/*  <img src={logo} className="App-logo" alt="logo" />*/}
-      {/*  <p>*/}
-      {/*    Edit <code>src/App.tsx</code> and save to reload.*/}
-      {/*  </p>*/}
-      {/*  <a*/}
-      {/*    className="App-link"*/}
-      {/*    href="https://reactjs.org"*/}
-      {/*    target="_blank"*/}
-      {/*    rel="noopener noreferrer"*/}
-      {/*  >*/}
-      {/*    Learn React*/}
-      {/*  </a>*/}
-      {/*</header>*/}
+      <GuitarFretboard numberOfStrings={numberOfStrings} tuning={tuning as Tuning} fretBoard={fretBoard as FretBoard}></GuitarFretboard>
+        {/* Display the tuning name if the data has been fetched */}
+        <TuningChip tuningName={tuningName} />
     </div>
   );
 }

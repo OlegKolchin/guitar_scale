@@ -1,40 +1,41 @@
 import * as React from "react";
+import { Avatar } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import {Avatar, Chip, ChipProps} from "@mui/material";
 
-// Define the interface for the MusicNote props
 interface MusicNoteProps {
     noteName: string;
     noteScalePosition: string;
+    top: string;
+    left: string;
 }
 
-// Create a styled Chip component that uses the MusicNoteProps interface
-export const MusicNote = styled(
-    ({ noteName, noteScalePosition, ...otherProps }: MusicNoteProps & ChipProps) => (
-        <Chip avatar={<Avatar>{noteName}</Avatar>}
-            label={`${noteScalePosition}`} {...otherProps}
-              clickable={true}
-              sx={{
-                  width: {
-                      xs: '6',
-                      sm: '4%',
-                      md: '2%',
-                  },
-                  height: {
-                      xs: '6%',
-                      sm: '4%',
-                      md: '2%',
-                  },
-              }}
-
-            />
-    )
-)({
-    // Add your custom styles here
-    // Example: making the Chip more circular
-    borderRadius: '30%',
-    color:'red'
-    // color: 'red',
-    // backgroundColor: 'blanchedalmond'
-    // ... any other custom styles
+const StyledAvatar = styled(Avatar)({
+    backgroundColor: 'rgb(220,36,195)', // Example style
+    color: 'white',
+    width: 'min(2vw, 2vh)',
+    height: 'min(2vw, 2vh)',
+    fontSize: 'clamp(7px, 1.1vw, 10px)', // Smaller font size
+    minWidth: '24px',
+    minHeight: '24px',
+    maxWidth: '24px',
+    maxHeight: '24px',
 });
+
+const MusicNote: React.FC<MusicNoteProps> = ({ noteName, noteScalePosition, top, left }) => {
+    const avatarContent = `${noteName}${noteScalePosition}`;
+
+    return (
+        <StyledAvatar
+            sx={{
+                position: 'absolute',
+                top: top,
+                left: left,
+                transform: 'translateX(-50%)',
+            }}
+        >
+            {avatarContent}
+        </StyledAvatar>
+    );
+};
+
+export default MusicNote;

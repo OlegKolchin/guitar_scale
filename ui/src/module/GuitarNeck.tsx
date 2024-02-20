@@ -4,17 +4,17 @@ import woodTexture from '../assets/material/wooden-textured-background.jpg';
 
 interface GuitarNeckProps {
     children?: React.ReactNode;
-    numberOfStrings?: number; // New prop for the number of strings
+    numberOfStrings?: number;
 }
 
 const GuitarNeck: React.FC<GuitarNeckProps> = ({ children, numberOfStrings = 6 }) =>  {
-    const heightBasedOnStrings = `${numberOfStrings * 3.5}vh`; // Example calculation, adjust as needed
+    const heightBasedOnStrings = `${numberOfStrings * 3.5}vh`;
 
     return (
         <Box
             sx={{
                 width: '60%',
-                height: heightBasedOnStrings, // Dynamic height based on the number of strings
+                height: heightBasedOnStrings,
                 position: 'relative',
                 backgroundImage: `url(${woodTexture})`,
                 backgroundSize: 'cover',

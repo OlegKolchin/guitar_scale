@@ -1,10 +1,10 @@
 package com.guitar_scale.service;
 
-import com.guitar_scale.controller.ScaleController;
 import com.guitar_scale.domain.*;
 import com.guitar_scale.repository.BasicNoteRepository;
 import com.guitar_scale.repository.ScaleRepository;
 import com.guitar_scale.repository.TuningRepository;
+import com.guitar_scale.repository.DefaultSettingsRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,17 +16,19 @@ public class GuitarService {
     private final BasicNoteRepository basicNoteRepository;
     private final TuningRepository tuningRepository;
     private final ScaleRepository scaleRepository;
+    private final DefaultSettingsRepository defaultSettingsRepository;
 //    private final NotesRepository notesRepository;
 //    private final ScaleRepository scaleRepository;
 //    private final TuneRepository tuneRepository;
 
-    public GuitarService(BasicNoteRepository basicNoteRepository, TuningRepository tuningRepository, ScaleRepository scaleRepository) {
+    public GuitarService(BasicNoteRepository basicNoteRepository, TuningRepository tuningRepository, ScaleRepository scaleRepository, DefaultSettingsRepository defaultSettingsRepository) {
         this.basicNoteRepository = basicNoteRepository;
 //        this.notesRepository = notesRepository;
 //        this.scaleRepository = scaleRepository;
 //        this.tuneRepository = tuneRepository;
         this.tuningRepository = tuningRepository;
         this.scaleRepository = scaleRepository;
+        this.defaultSettingsRepository = defaultSettingsRepository;
     }
 
     public List<BasicNote> getAllBasicNotes() {
@@ -63,7 +65,8 @@ public class GuitarService {
         scaleRepository.save(scale);
     }
 
-    public FretBoard getFretBoard(Tuning tuning) {
+    public FretBoard getFretBoard(String tuningName) {
+        Tuning tuning = getTuningByName(tuningName);
         FretBoard fretBoard = new FretBoard();
         HashMap<Integer, List<Fret>>  frets = new HashMap<>();
         fretBoard.setTuning(tuning);
@@ -77,6 +80,15 @@ public class GuitarService {
         tuningNotes.add(basicNoteRepository.findById(tuning.getS5()).get());
         tuningNotes.add(basicNoteRepository.findById(tuning.getS6()).get());
 
+        if (tuning.getS7() != null) {
+            tuningNotes.add(basicNoteRepository.findById(tuning.getS7()).get());
+        }
+
+        if (tuning.getS8() != null) {
+            tuningNotes.add(basicNoteRepository.findById(tuning.getS8()).get());
+        }
+
+
         for (int i = 0; i < tuningNotes.size(); i++) {
             frets.put(i + 1, tuneString(tuningNotes.get(i).getBasicPos(), i + 1));
         }
@@ -89,8 +101,7 @@ public class GuitarService {
         Map<Integer, BasicNote> basicNotes = getAllBasicNotes()
                 .stream()
                 .collect(Collectors.toMap(bn -> bn.getBasicPos(), Function.identity()));
-        int n = 0;
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 16; i++) {
             Fret fret = new Fret();
             fret.setStringNo(stringNo);
             fret.setNote(basicNotes.get(notePos));
@@ -99,6 +110,10 @@ public class GuitarService {
             frets.add(fret);
         }
         return frets;
+    }
+
+    public DefaultSettings getDefaultSettings() {
+        return defaultSettingsRepository.findAll().iterator().next();
     }
 
 

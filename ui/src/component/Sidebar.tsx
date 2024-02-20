@@ -5,7 +5,6 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {ListItemButton} from "@mui/material";
 
-// Define the structure of your tuning data
 interface Tuning {
     tuningName: string;
     s1: string;
@@ -19,7 +18,7 @@ interface Tuning {
 }
 
 const Sidebar: React.FC = () => {
-    // Use the interface to type your state
+
     const [tuning, setTuning] = useState<Tuning | null>(null);
 
     const handleApiCall = async () => {
