@@ -2,14 +2,22 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { DefaultSettings } from '../interface/DefaultSettings'; // Adjust the import path as necessary
 import { Tuning } from '../interface/Tuning'; // Adjust the import path as necessary
 import {FretBoard} from "../interface/FretBoard";
+import {Scale} from "../interface/Scale";
 
 interface DefaultSettingsContextType {
     defaultSettings: DefaultSettings;
     isLoading: boolean;
+
     tuning: Tuning | null;
     isTuningLoading: boolean;
+
     fretBoard: FretBoard | null,
     isFretBoardLoading: boolean
+
+    scale : Scale | null,
+    isScaleLoading: boolean
+
+    showScalePosition: boolean
 }
 
 const DefaultSettingsContext = createContext<DefaultSettingsContextType | undefined>(undefined);
@@ -40,6 +48,10 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const [isTuningLoading, setIsTuningLoading] = useState(true);
     const [fretBoard, setFretBoard] = useState<FretBoard | null>(null);
     const [isFretBoardLoading, setIsFretBoardLoading] = useState(true);
+    const [scale, setScale] = useState<Scale | null>(null);
+    const [isScaleLoading, setIsScaleLoading] = useState(true);
+
+    const [showScalePosition, setShowScalePosition] = useState(true);
 
     useEffect(() => {
         const fetchDefaultSettings = async () => {
@@ -73,11 +85,17 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
 
                 setFretBoard(newFretBoard);
 
+
+                const scaleResponse = await fetch(`http://localhost:8080/scale/byName?name=${data.scaleName}`);
+                const scaleData : Scale = await scaleResponse.json();
+                setScale(scaleData);
+
             } catch (error) {
                 console.error(error);
             } finally {
                 setIsTuningLoading(false);
                 setIsFretBoardLoading(false);
+                setIsScaleLoading(false);
             }
         };
 
@@ -85,7 +103,16 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     }, []);
 
     return (
-        <DefaultSettingsContext.Provider value={{ defaultSettings, isLoading, tuning, isTuningLoading, fretBoard, isFretBoardLoading }}>
+        <DefaultSettingsContext.Provider value={{
+            defaultSettings,
+            isLoading,
+            tuning,
+            isTuningLoading,
+            fretBoard,
+            isFretBoardLoading,
+            scale,
+            isScaleLoading,
+            showScalePosition}}>
             {children}
         </DefaultSettingsContext.Provider>
     );

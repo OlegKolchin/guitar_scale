@@ -20,6 +20,11 @@ public class ScaleController {
         return guitarService.getAllScales();
     }
 
+    @GetMapping("/byName")
+    public Scale getScaleByName(@RequestParam String name) {
+        return guitarService.getScaleByName(name);
+    }
+
     @PostMapping
     public void saveScale(@RequestBody Scale scale) {
         guitarService.saveScale(scale);

@@ -61,6 +61,10 @@ public class GuitarService {
         return scales;
     }
 
+    public Scale getScaleByName(String name) {
+        return scaleRepository.findById(name).get();
+    }
+
     public void saveScale(Scale scale) {
         scaleRepository.save(scale);
     }

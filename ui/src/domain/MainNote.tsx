@@ -17,6 +17,9 @@ const StyledAvatar = styled(Avatar) ({
     minHeight: '24px',
     maxWidth: '24px',
     maxHeight: '24px',
+    fontWeight: 'bold',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.19)',
 })
 
 export const MainNote: React.FC<MainNoteProps> = ({noteName, top, left}) => {

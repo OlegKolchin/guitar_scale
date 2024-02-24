@@ -25,7 +25,7 @@ function App() {
     return (
     <div className="App">
       <BasicMenu></BasicMenu>
-      <GuitarFretboard numberOfStrings={numberOfStrings} tuning={tuning as Tuning} fretBoard={fretBoard as FretBoard}></GuitarFretboard>
+      <GuitarFretboard></GuitarFretboard>
         {/* Display the tuning name if the data has been fetched */}
         <TuningChip tuningName={tuningName} />
     </div>
