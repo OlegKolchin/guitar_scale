@@ -8,7 +8,7 @@ interface TuningChipProps {
 }
 
 const StyledChip = styled(Chip)({
-    margin: '8px',
+    margin: '40px',
 });
 
 function TuningChip({ tuningName }: TuningChipProps) {

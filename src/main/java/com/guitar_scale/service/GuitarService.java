@@ -1,10 +1,7 @@
 package com.guitar_scale.service;
 
 import com.guitar_scale.domain.*;
-import com.guitar_scale.repository.BasicNoteRepository;
-import com.guitar_scale.repository.ScaleRepository;
-import com.guitar_scale.repository.TuningRepository;
-import com.guitar_scale.repository.DefaultSettingsRepository;
+import com.guitar_scale.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,11 +14,12 @@ public class GuitarService {
     private final TuningRepository tuningRepository;
     private final ScaleRepository scaleRepository;
     private final DefaultSettingsRepository defaultSettingsRepository;
+    private final ScalePatternRepository scalePatternRepository;
 //    private final NotesRepository notesRepository;
 //    private final ScaleRepository scaleRepository;
 //    private final TuneRepository tuneRepository;
 
-    public GuitarService(BasicNoteRepository basicNoteRepository, TuningRepository tuningRepository, ScaleRepository scaleRepository, DefaultSettingsRepository defaultSettingsRepository) {
+    public GuitarService(BasicNoteRepository basicNoteRepository, TuningRepository tuningRepository, ScaleRepository scaleRepository, DefaultSettingsRepository defaultSettingsRepository, ScalePatternRepository scalePatternRepository) {
         this.basicNoteRepository = basicNoteRepository;
 //        this.notesRepository = notesRepository;
 //        this.scaleRepository = scaleRepository;
@@ -29,6 +27,7 @@ public class GuitarService {
         this.tuningRepository = tuningRepository;
         this.scaleRepository = scaleRepository;
         this.defaultSettingsRepository = defaultSettingsRepository;
+        this.scalePatternRepository = scalePatternRepository;
     }
 
     public List<BasicNote> getAllBasicNotes() {
@@ -119,6 +118,82 @@ public class GuitarService {
     public DefaultSettings getDefaultSettings() {
         return defaultSettingsRepository.findAll().iterator().next();
     }
+
+    public ScalePattern getScalePatternByName(String name) {
+        return scalePatternRepository.findById(name).get();
+    }
+
+    public List<ScaleItem> createScale(String noteName, String patternName) {
+        List<BasicNote> basicNotes = getAllBasicNotes();
+        basicNotes.addAll(getAllBasicNotes());
+        int coreNoteBasicListPosition = getBasicNoteByName(noteName).get().getBasicPos() - 1;
+
+        ScalePattern pattern = getScalePatternByName(patternName);
+        List<String> stepSequence = List.of(pattern.getStepSequence().split("\\|"));
+        List<String> patternIntervals = List.of(pattern.getPattern().split("-"));
+
+        String scaleName = noteName + " " + patternName;
+
+        List<ScaleItem> rsl = new ArrayList<>();
+        int scalePosIndex = 0;
+        ScaleItem coreNote = new ScaleItem();
+        coreNote.setNoteName(noteName);
+        coreNote.setScalePos(stepSequence.get(scalePosIndex++));
+        coreNote.setScaleName(scaleName);
+        rsl.add(coreNote);
+
+        for (String interval : patternIntervals) {
+            ScaleItem scaleItem = new ScaleItem();
+            scaleItem.setScaleName(scaleName);
+            scaleItem.setScalePos(stepSequence.get(scalePosIndex++));
+
+            if (interval.equals("W")) {
+                coreNoteBasicListPosition = coreNoteBasicListPosition + 2;
+            } else if (interval.equals("H")) {
+                coreNoteBasicListPosition = coreNoteBasicListPosition + 1;
+            } else if (interval.equals("WH")) {
+                coreNoteBasicListPosition = coreNoteBasicListPosition + 3;
+            }
+
+            scaleItem.setNoteName(basicNotes.get(coreNoteBasicListPosition).getNoteName());
+            rsl.add(scaleItem);
+        }
+
+        return rsl;
+    }
+
+//    public List<ScaleTemp> createScale(String noteName, String patternName, String scaleName) {
+//        List<BasicNote> basicNotes = getAllBasicNotes();
+//        basicNotes.addAll(getAllBasicNotes());
+//        int coreNoteBasicListPosition = getBasicNoteByName(noteName).get().getBasicPos() - 1;
+//        List<String> steps = List.of(patternName.split("-"));
+//
+//        List<ScaleTemp> rsl = new ArrayList<>();
+//        int scalePos = 1;
+//        ScaleTemp coreNote = new ScaleTemp();
+//        coreNote.setNoteName(noteName);
+//        coreNote.setScalePos(scalePos++);
+//        coreNote.setScaleName(scaleName);
+//        rsl.add(coreNote);
+//
+//
+//        for (String step : steps) {
+//            ScaleTemp scaleTemp = new ScaleTemp();
+//            scaleTemp.setScaleName(scaleName);
+//            scaleTemp.setScalePos(scalePos++);
+//            if (step.equals("W")) {
+//                coreNoteBasicListPosition = coreNoteBasicListPosition + 2;
+//            } else if (step.equals("H")) {
+//                coreNoteBasicListPosition = coreNoteBasicListPosition + 1;
+//            } else if (step.equals("WH")) {
+//                coreNoteBasicListPosition = coreNoteBasicListPosition + 3;
+//            }
+//            scaleTemp.setNoteName(basicNotes.get(coreNoteBasicListPosition).getNoteName());
+//            rsl.add(scaleTemp);
+//        }
+//
+//        return rsl;
+//    }
 
 
 //    public void saveTune(ArrayList<Tune> tune) {

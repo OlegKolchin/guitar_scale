@@ -17,8 +17,8 @@ const StyledAvatar = styled(Avatar)({
     width: 'min(2vw, 2vh)',
     height: 'min(2vw, 2vh)',
     fontSize: 'clamp(7px, 1.1vw, 10px)',
-    minWidth: '24px',
-    minHeight: '24px',
+    minWidth: '19px',
+    minHeight: '19px',
     maxWidth: '24px',
     maxHeight: '24px',
     border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -30,11 +30,15 @@ const StyledAvatar = styled(Avatar)({
 });
 
 const MusicNote: React.FC<MusicNoteProps> = ({ noteName, noteScalePosition, top, left }) => {
-    const { showScalePosition } = useDefaultSettings();
+    const { showScalePosition, hideEmptyScaleNotes} = useDefaultSettings();
+
+    if (hideEmptyScaleNotes && noteScalePosition === '') {
+        return null;
+    }
 
     // You can adjust the colors as needed
     const noteNameStyle = { color: 'black', fontWeight: 'bold' }; // Example color for noteName
-    const noteScalePositionStyle = { color: 'green', fontWeight: 'bold'}; // Example color for noteScalePosition
+    const noteScalePositionStyle = { color: 'green', fontWeight: 'bolder', }; // Example color for noteScalePosition
 
     const avatarContent = showScalePosition ? (
         <React.Fragment>

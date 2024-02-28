@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { DefaultSettings } from '../interface/DefaultSettings'; // Adjust the import path as necessary
 import { Tuning } from '../interface/Tuning'; // Adjust the import path as necessary
 import {FretBoard} from "../interface/FretBoard";
-import {Scale} from "../interface/Scale";
+import {ScaleItem} from "../interface/ScaleItem";
+
 
 interface DefaultSettingsContextType {
     defaultSettings: DefaultSettings;
@@ -11,13 +12,23 @@ interface DefaultSettingsContextType {
     tuning: Tuning | null;
     isTuningLoading: boolean;
 
-    fretBoard: FretBoard | null,
-    isFretBoardLoading: boolean
+    fretBoard: FretBoard | null;
+    isFretBoardLoading: boolean;
 
-    scale : Scale | null,
-    isScaleLoading: boolean
+    scale : ScaleItem[] | null;
+    isScaleLoading: boolean;
 
-    showScalePosition: boolean
+    showScalePosition: boolean;
+
+    toggleShowScalePosition: () => void;
+
+    hideEmptyScaleNotes : boolean;
+    toggleHideEmptyScaleNotes: () => void;
+
+    toggleSelectRootNote: (noteName : string) => void;
+
+    toggleSelectPattern: (patternName : string) => void;
+
 }
 
 const DefaultSettingsContext = createContext<DefaultSettingsContextType | undefined>(undefined);
@@ -39,8 +50,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         profileName: "MyProfile",
         tuningName: "E_STANDARD",
         numberOfStrings: 6,
-        scaleName: "Major",
-        fullScaleInd: "Y",
+        coreNoteName: "E",
+        patternName: "Minor",
         activeInd: "Y"
     });
     const [isLoading, setIsLoading] = useState(true);
@@ -48,10 +59,50 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const [isTuningLoading, setIsTuningLoading] = useState(true);
     const [fretBoard, setFretBoard] = useState<FretBoard | null>(null);
     const [isFretBoardLoading, setIsFretBoardLoading] = useState(true);
-    const [scale, setScale] = useState<Scale | null>(null);
+    const [scale, setScale] = useState<ScaleItem[] | null>(null);
     const [isScaleLoading, setIsScaleLoading] = useState(true);
+    const [showScalePosition, setShowScalePosition] = useState(false);
+    const [hideEmptyScaleNotes, setHideEmptyScaleNotes] = useState(false);
 
-    const [showScalePosition, setShowScalePosition] = useState(true);
+    const toggleShowScalePosition = () => {
+        setShowScalePosition(prevState => !prevState);
+    }
+
+    const toggleHideEmptyScaleNotes = () => {
+        setHideEmptyScaleNotes(prevState => !prevState);
+    }
+
+    const toggleSelectRootNote = (noteName : string) => {
+        setDefaultSettings(prevSettings => ({
+            ...prevSettings,
+            coreNoteName: noteName
+        }))
+    }
+
+    const toggleSelectPattern = (patternName : string) => {
+        setDefaultSettings(prevSettings => ({
+            ...prevSettings,
+            patternName: patternName
+        }))
+    }
+
+    const fetchScale = async (coreNoteName: string, patternName: string) => {
+        setIsScaleLoading(true);
+        try {
+            const scaleResponse = await fetch(`http://localhost:8080/scale/createScale?noteName=${encodeURIComponent(coreNoteName)}&patternName=${patternName}`);
+            if (!scaleResponse.ok) {
+                throw new Error('Failed to fetch scale');
+            }
+            const scaleData: ScaleItem[] = await scaleResponse.json();
+            setScale(scaleData);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsScaleLoading(false);
+        }
+    };
+
+
 
     useEffect(() => {
         const fetchDefaultSettings = async () => {
@@ -85,9 +136,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
 
                 setFretBoard(newFretBoard);
 
-
-                const scaleResponse = await fetch(`http://localhost:8080/scale/byName?name=${data.scaleName}`);
-                const scaleData : Scale = await scaleResponse.json();
+                const scaleResponse = await fetch(`http://localhost:8080/scale/createScale?noteName=${encodeURIComponent(data.coreNoteName)}&patternName=${data.patternName}`);
+                const scaleData : ScaleItem[] = await scaleResponse.json();
                 setScale(scaleData);
 
             } catch (error) {
@@ -102,6 +152,12 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         fetchDefaultSettings();
     }, []);
 
+    useEffect(() => {
+        if (defaultSettings.coreNoteName && defaultSettings.patternName) {
+            fetchScale(defaultSettings.coreNoteName, defaultSettings.patternName);
+        }
+    }, [defaultSettings.coreNoteName, defaultSettings.patternName]);
+
     return (
         <DefaultSettingsContext.Provider value={{
             defaultSettings,
@@ -112,7 +168,12 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
             isFretBoardLoading,
             scale,
             isScaleLoading,
-            showScalePosition}}>
+            showScalePosition,
+            toggleShowScalePosition,
+            hideEmptyScaleNotes,
+            toggleHideEmptyScaleNotes,
+            toggleSelectRootNote,
+            toggleSelectPattern}}>
             {children}
         </DefaultSettingsContext.Provider>
     );

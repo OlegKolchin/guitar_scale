@@ -18,14 +18,14 @@ public class  DefaultSettings {
     @Column(name = "tuning_name", nullable = false)
     private String tuningName;
 
-    @Column(name = "numberOfStrings", nullable = false)
+    @Column(name = "number_of_strings", nullable = false)
     private Integer numberOfStrings;
 
-    @Column(name = "scale_name", nullable = false)
-    private String scaleName;
+    @Column(name = "core_note_name", nullable = false)
+    private String coreNoteName;
 
-    @Column(name = "full_scale_ind", nullable = false)
-    private String fullScaleInd;
+    @Column(name =  "pattern_name", nullable = false)
+    private String patternName;
 
     @Column(name = "active_ind")
     private String activeInd;

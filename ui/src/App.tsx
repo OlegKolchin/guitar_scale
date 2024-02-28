@@ -8,8 +8,8 @@ import { useDefaultSettings } from './context/DefaultSettingsContext';
 import {Tuning} from "./interface/Tuning";
 import LoadingElement from "./component/LoadingElement";
 import {FretBoard} from "./interface/FretBoard";
-
-
+import CustomizedSwitches from "./component/Switches";
+import {FretDot} from "./domain/FretDot";
 
 function App() {
 
@@ -27,7 +27,9 @@ function App() {
       <BasicMenu></BasicMenu>
       <GuitarFretboard></GuitarFretboard>
         {/* Display the tuning name if the data has been fetched */}
-        <TuningChip tuningName={tuningName} />
+        {/*<TuningChip tuningName={tuningName} />*/}
+        {/*<TuningChip  tuningName={defaultSettings.coreNoteName + ' ' + defaultSettings.patternName} />*/}
+        <CustomizedSwitches></CustomizedSwitches>
     </div>
   );
 }

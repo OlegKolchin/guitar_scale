@@ -5,14 +5,10 @@ import Box from "@mui/material/Box";
 import { StainlessFret } from "../domain/StainlessFret";
 import MusicNote from "../domain/MusicNote";
 import {MainNote} from "../domain/MainNote";
-import {Tuning} from "../interface/Tuning";
-import {FretBoard} from "../interface/FretBoard";
-import {Scale} from "../interface/Scale";
 import {useDefaultSettings} from "../context/DefaultSettingsContext";
 import LoadingElement from "./LoadingElement";
-
-
-
+import {ScaleItem} from "../interface/ScaleItem";
+import {FretDot} from "../domain/FretDot";
 
 export default function GuitarFretboard() {
 
@@ -27,37 +23,43 @@ export default function GuitarFretboard() {
         isScaleLoading
     } = useDefaultSettings();
 
-    if (isLoading || isTuningLoading || isFretBoardLoading || isScaleLoading) {
-        return LoadingElement();
-    }
-
+    // if (isLoading || isTuningLoading || isFretBoardLoading || isScaleLoading) {
+    //     return LoadingElement();
+    // }
 
     const defNumberOfStrings = defaultSettings.numberOfStrings;
     const numberOfFrets = 15;
-    const stringOffset = 6.6; // z
+    const stringOffset = 6.6;
 
-    const notePositions = Array.from({ length: numberOfFrets }).map((_, index) =>
-        `calc(${(100 / numberOfFrets) * index}% + ${(100 / numberOfFrets) / 2}% + 15px)`
-    );
+
+    // const dotFrets = [1, 3, 5, 7, 9, 12, 15];
+    const dotFrets = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
+    const dotOffset = stringOffset + 5;
 
     const openStringNotes = [tuning!.s1, tuning!.s2, tuning!.s3, tuning!.s4, tuning!.s5, tuning!.s6];
 
-    const calculatedScalePosition = (scale: Scale, noteName: string): string => {
-        const degrees = [
-            scale.degree1, scale.degree2, scale.degree3,
-            scale.degree4, scale.degree5, scale.degree6,
-            scale.degree7
-        ];
-        const index = degrees.findIndex(degree => degree === noteName);
-        return index !== -1 ? (index + 1).toString() : '';
+    if (tuning?.s7 !== null) {
+        openStringNotes.push(tuning!.s7);
+    }
+
+    if (tuning?.s8 !== null) {
+        openStringNotes.push(tuning!.s8);
+    }
+
+    const calculatedScalePosition = (scale: ScaleItem[], noteName: string): string => {
+        const rsl = scale.find(scaleItem => scaleItem.noteName === noteName);
+        return rsl === undefined ? '' : rsl.scalePos;
     }
 
     return (
         <GuitarNeck numberOfStrings={defNumberOfStrings}>
-            <Box sx={{ width: '1%' }} /> {/* Empty Box for spacing */}
+            {/*<Box sx={{ width: '7px' }} /> /!* Empty Box for spacing *!/*/}
+            <Box sx={{ marginLeft: '9.5px' }}/>
             {Array.from({ length: numberOfFrets }).map((_, index) => (
                 <StainlessFret key={`fret-${index}`}/>
             ))}
+
             {Array.from({ length: defNumberOfStrings }).map((_, stringIndex) => (
                 <NickelString
                     key={`string-${stringIndex}`}
@@ -78,13 +80,24 @@ export default function GuitarFretboard() {
                             <MusicNote
                                 key={`note-${fret.fretNo}-${fret.stringNo}`}
                                 top={`calc(${(fret.stringNo - 1) * (100 / defNumberOfStrings)}% + ${stringOffset - 5}%)`}
-                                left={`calc(${(100 / numberOfFrets) * (fret.fretNo - 1)}% + ${(100 / numberOfFrets) / 2}% + 15px)`}
+                                left={`calc(${(100 / numberOfFrets) * (fret.fretNo - 1)}% + ${(100 / numberOfFrets) / 2}%)`}
                                 noteName={fret.note.noteName}
                                 // noteScalePosition={'s'}
-                                noteScalePosition={calculatedScalePosition(scale as Scale, fret.note.noteName)}
+                                noteScalePosition={calculatedScalePosition(scale as ScaleItem[], fret.note.noteName)}
                             />
                         ))
                 )
+            }
+
+            {
+                dotFrets.map(fret => (
+                    <FretDot
+                        key={`dot-${fret}`}
+                        left={`calc(${(100 / numberOfFrets) * (fret - 1)}% + ${(100 / numberOfFrets) / 2}%)`}
+                        top={`calc(100% + ${dotOffset}px)`} // Ensure dotOffset is defined and adjust as needed
+                        digit={fret}
+                    />
+                ))
             }
 
             {openStringNotes.map((note, stringIndex) => (

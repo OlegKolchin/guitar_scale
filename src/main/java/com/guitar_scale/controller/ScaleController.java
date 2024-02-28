@@ -1,6 +1,7 @@
 package com.guitar_scale.controller;
 
 import com.guitar_scale.domain.Scale;
+import com.guitar_scale.domain.ScaleItem;
 import com.guitar_scale.service.GuitarService;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,5 +29,11 @@ public class ScaleController {
     @PostMapping
     public void saveScale(@RequestBody Scale scale) {
         guitarService.saveScale(scale);
+    }
+
+    @GetMapping("/createScale")
+    public List<ScaleItem> createScale(@RequestParam String noteName,
+                                       @RequestParam String patternName) {
+        return guitarService.createScale(noteName, patternName);
     }
 }
