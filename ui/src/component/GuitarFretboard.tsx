@@ -27,7 +27,9 @@ export default function GuitarFretboard() {
     //     return LoadingElement();
     // }
 
-    const defNumberOfStrings = defaultSettings.numberOfStrings;
+    console.log("tuning is : " + tuning)
+    const defNumberOfStrings = tuning!.numberOfStrings;
+    console.log("defaultNumber of str:" + defNumberOfStrings)
     const numberOfFrets = 15;
     const stringOffset = 6.6;
 
@@ -94,7 +96,7 @@ export default function GuitarFretboard() {
                     <FretDot
                         key={`dot-${fret}`}
                         left={`calc(${(100 / numberOfFrets) * (fret - 1)}% + ${(100 / numberOfFrets) / 2}%)`}
-                        top={`calc(100% + ${dotOffset}px)`} // Ensure dotOffset is defined and adjust as needed
+                        top={`calc(100% + ${dotOffset}px)`}
                         digit={fret}
                     />
                 ))

@@ -44,7 +44,7 @@ const NotePopover: React.FC<NotePopoverProps> = ({ anchorEl, open, onClose, onNo
             }}
             sx={{
                 marginTop: '100px',
-                marginLeft: '400px',
+                marginLeft: '850px',
             }}
         >
             <NotesContainer>

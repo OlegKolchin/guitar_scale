@@ -2,6 +2,7 @@ import * as React from "react";
 
 export interface Tuning {
     tuningName:string,
+    numberOfStrings: number
     s1:string,
     s2:string,
     s3:string,

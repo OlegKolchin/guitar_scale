@@ -12,6 +12,9 @@ interface DefaultSettingsContextType {
     tuning: Tuning | null;
     isTuningLoading: boolean;
 
+    savedTunings: { [key: string]: Tuning } | null;
+    isSavedTuningsLoading: boolean;
+
     fretBoard: FretBoard | null;
     isFretBoardLoading: boolean;
 
@@ -28,6 +31,8 @@ interface DefaultSettingsContextType {
     toggleSelectRootNote: (noteName : string) => void;
 
     toggleSelectPattern: (patternName : string) => void;
+
+    toggleSelectTuning : (tuningName : string) => void;
 
 }
 
@@ -57,6 +62,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [tuning, setTuning] = useState<Tuning | null>(null);
     const [isTuningLoading, setIsTuningLoading] = useState(true);
+    const [savedTunings, setSavedTunings] = useState<{ [key: string]: Tuning } | null>(null);
+    const [isSavedTuningsLoading, setIsSavedTuningsLoading] = useState(true);
     const [fretBoard, setFretBoard] = useState<FretBoard | null>(null);
     const [isFretBoardLoading, setIsFretBoardLoading] = useState(true);
     const [scale, setScale] = useState<ScaleItem[] | null>(null);
@@ -86,10 +93,46 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         }))
     }
 
+    const toggleSelectTuning = (tuningName: string) => {
+        if (savedTunings) {
+            console.log(savedTunings)
+            const newTuning: Tuning = savedTunings[tuningName];
+            console.log('New Tuning is: ')
+            console.log(newTuning);
+            if (newTuning) {
+                console.log('Setting number of strings')
+                setTuning(newTuning);
+                // setDefaultSettings(prevSettings => ({
+                //     ...prevSettings,
+                //     numberOfStrings: newTuning.numberOfStrings,
+                //     tuningName: newTuning.tuningName
+                // }));
+
+            }
+        }
+        console.log(tuning)
+    };
+
+    // const fetchTuning = async (tuningName : string) => {
+    //     setIsTuningLoading(true);
+    //     try {
+    //         const tuningResponse = await fetch(`http://localhost:8080/tuning/byName?tuningName=${tuningName}`);
+    //         if (!tuningResponse.ok) {
+    //             throw new Error('Failed to fetch tuning');
+    //         }
+    //         const tuningData: Tuning = await tuningResponse.json();
+    //         setTuning(tuningData);
+    //     } catch (error) {
+    //         console.error(error)
+    //     } finally {
+    //         setIsTuningLoading(false);
+    //     }
+    // }
+
     const fetchScale = async (coreNoteName: string, patternName: string) => {
         setIsScaleLoading(true);
         try {
-            const scaleResponse = await fetch(`http://localhost:8080/scale/createScale?noteName=${encodeURIComponent(coreNoteName)}&patternName=${patternName}`);
+            const scaleResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/scale/createScale?noteName=${encodeURIComponent(coreNoteName)}&patternName=${patternName}`);
             if (!scaleResponse.ok) {
                 throw new Error('Failed to fetch scale');
             }
@@ -100,14 +143,37 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         } finally {
             setIsScaleLoading(false);
         }
+        console.log(scale)
     };
 
+    const fetchFretBoard = async (tuningName : string) => {
+        // setIsFretBoardLoading(true);
+        try {
+            const fretBoardResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/fret?tuningName=${tuningName}`);
+            if (!fretBoardResponse.ok) {
+                throw new Error('Failed to fetch fretBoard');
+            }
+            const fretBoardData = await fretBoardResponse.json();
 
+            const fretsMap = new Map(Object.entries(fretBoardData.frets).map(([key, value]) => [parseInt(key, 10), value]));
+            const newFretBoard = {
+                ...fretBoardData,
+                frets: fretsMap
+            };
+            console.log(newFretBoard);
+            setFretBoard(newFretBoard);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            // setIsFretBoardLoading(false);
+        }
+        console.log(fretBoard)
+    }
 
     useEffect(() => {
         const fetchDefaultSettings = async () => {
             try {
-                const response = await fetch('http://localhost:8080/tuning/defaultSettings');
+                const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/defaultSettings`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch default settings');
                 }
@@ -115,14 +181,27 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
                 setDefaultSettings(data);
                 setIsLoading(false);
 
-                const tuningResponse = await fetch(`http://localhost:8080/tuning/byName?tuningName=${data.tuningName}`);
+                /* Fetching default tuning  */
+                const tuningResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/byName?tuningName=${data.tuningName}`);
                 if (!tuningResponse.ok) {
                     throw new Error('Failed to fetch tuning');
                 }
                 const tuningData: Tuning = await tuningResponse.json();
                 setTuning(tuningData);
 
-                const fretBoardResponse = await fetch(`http://localhost:8080/tuning/fret?tuningName=${data.tuningName}`);
+                /* Fetching all saved tunings */
+                const tuningsResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning`);
+                if (!tuningsResponse.ok) {
+                    throw new Error('Failed to fetch tunings!')
+                }
+                const tuningsArray : Tuning[] = await tuningsResponse.json();
+                const tuningMap = tuningsArray.reduce((acc, tuning) => {
+                    acc[tuning.tuningName] = tuning;
+                    return acc;
+                }, {} as { [key: string]: Tuning });
+                setSavedTunings(tuningMap);
+
+                const fretBoardResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/fret?tuningName=${data.tuningName}`);
                 if (!fretBoardResponse.ok) {
                     throw new Error('Failed to fetch fretBoard');
                 }
@@ -136,7 +215,7 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
 
                 setFretBoard(newFretBoard);
 
-                const scaleResponse = await fetch(`http://localhost:8080/scale/createScale?noteName=${encodeURIComponent(data.coreNoteName)}&patternName=${data.patternName}`);
+                const scaleResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/scale/createScale?noteName=${encodeURIComponent(data.coreNoteName)}&patternName=${data.patternName}`);
                 const scaleData : ScaleItem[] = await scaleResponse.json();
                 setScale(scaleData);
 
@@ -146,6 +225,7 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
                 setIsTuningLoading(false);
                 setIsFretBoardLoading(false);
                 setIsScaleLoading(false);
+                setIsSavedTuningsLoading(false);
             }
         };
 
@@ -158,12 +238,21 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         }
     }, [defaultSettings.coreNoteName, defaultSettings.patternName]);
 
+    useEffect(() => {
+        if (tuning) {
+            fetchFretBoard(tuning.tuningName);
+        }
+    }, [tuning]);
+
+
     return (
         <DefaultSettingsContext.Provider value={{
             defaultSettings,
             isLoading,
             tuning,
             isTuningLoading,
+            savedTunings,
+            isSavedTuningsLoading,
             fretBoard,
             isFretBoardLoading,
             scale,
@@ -173,7 +262,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
             hideEmptyScaleNotes,
             toggleHideEmptyScaleNotes,
             toggleSelectRootNote,
-            toggleSelectPattern}}>
+            toggleSelectPattern,
+            toggleSelectTuning}}>
             {children}
         </DefaultSettingsContext.Provider>
     );

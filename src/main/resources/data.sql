@@ -11,13 +11,17 @@ insert into basic_note(note_name, basic_pos) values ('A', 10);
 insert into basic_note(note_name, basic_pos) values ('A#', 11);
 insert into basic_note(note_name, basic_pos) values ('B', 12);
 
-insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('E_STANDARD', 'E', 'B', 'G', 'D', 'A', 'E', 6);
-insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP_D', 'E', 'B', 'G', 'D', 'A', 'D', 6);
-insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('DROP_A7', 'E', 'B', 'G', 'D', 'A', 'E', 'A', 7);
-insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('B_STANDARD7', 'E', 'B', 'G', 'D', 'A', 'E', 'B', 7);
-insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('C_STANDARD7', 'F', 'C', 'G#', 'D#', 'A#', 'F', 'C', 7);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('E STANDARD', 'E', 'B', 'G', 'D', 'A', 'E', 6);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('D STANDARD', 'D', 'A', 'F', 'C', 'G', 'D', 6);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP D', 'E', 'B', 'G', 'D', 'A', 'D', 6);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP C', 'D', 'A', 'F', 'C', 'G', 'C', 6);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP A', 'A', 'E', 'A', 'D', 'F#', 'B', 6);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('DROP A7', 'E', 'B', 'G', 'D', 'A', 'E', 'A', 7);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('B STANDARD7', 'E', 'B', 'G', 'D', 'A', 'E', 'B', 7);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('C STANDARD7', 'F', 'C', 'G#', 'D#', 'A#', 'F', 'C', 7);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('DROP G7', 'D', 'A', 'F', 'C', 'G', 'D', 'G', 7);
 
-insert into default_settings(profile_name, tuning_name, number_of_strings, core_note_name, pattern_name, active_ind) values('DEFAULT', 'E_STANDARD', 6, 'D', 'Minor', 'Y');
+insert into default_settings(profile_name, tuning_name, number_of_strings, core_note_name, pattern_name, active_ind) values('DEFAULT', 'E STANDARD', 6, 'D', 'Minor', 'Y');
 -- insert into default_settings(profile_name, tuning_name, number_of_strings, core_note_name, pattern_name, active_ind) values('DEFAULT', 'B_STANDARD7', 7, 'C', 'Pentatonic Major', 'Y');
 -- insert into default_settings(profile_name, tuning_name, number_of_strings, core_note_name, pattern_name, active_ind) values('DEFAULT', 'DROP_A7', 7, 'C', 'Pentatonic Major', 'Y');
 -- insert into default_settings(profile_name, tuning_name, number_of_strings, core_note_name, pattern_name, active_ind) values('DEFAULT', 'C_STANDARD7', 7, 'C', 'Pentatonic Major', 'Y');

@@ -2,6 +2,7 @@ import * as React from "react";
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 
+/* Just wanted to explore how class system works in REACT =) */
 export class MainButton {
     private _backgroundColor: string;
     private _boxShadow: string;

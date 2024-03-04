@@ -20,7 +20,7 @@ const IOSSwitch = styled((props: SwitchProps) => (
             transform: 'translateX(16px)',
             color: '#fff',
             '& + .MuiSwitch-track': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#2ECA45' : '#65C466',
+                backgroundColor: theme.palette.mode === 'dark' ? '#2ECA45' : '#199383',
                 opacity: 1,
                 border: 0,
             },
@@ -63,7 +63,7 @@ export default function CustomizedSwitches() {
     const { toggleShowScalePosition, toggleHideEmptyScaleNotes} = useDefaultSettings();
 
     return (
-        <Stack direction="row" justifyContent="center" alignItems="center" sx={{ width: '100%', height: '20vh' }}>
+        <Stack direction="row" justifyContent="center" alignItems="center" sx={{ width: '100%', height: '35vh' }}>
             <FormGroup>
                 <FormControlLabel
                     control={<IOSSwitch sx={{ m: 1 }} />}

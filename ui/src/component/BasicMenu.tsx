@@ -9,11 +9,13 @@ import { MainButton } from '../domain/MainButton';
 import NotePopover from "../domain/NotesPopover";
 import {useDefaultSettings} from "../context/DefaultSettingsContext";
 import PatternPopover from "../domain/PatternPopover";
+import TuningPopover from "../domain/TuningPopover";
 
 export default function BasicButtons() {
     const [rootNoteAnchorEl, setRootNoteAnchorEl] = useState<HTMLElement | null>(null);
     const [patternAnchorEl, setPatternAnchorEl] = useState<HTMLElement | null>(null);
-    const {defaultSettings, toggleSelectRootNote, toggleSelectPattern} = useDefaultSettings();
+    const [tuningAnchorEl, setTuningAnchorEl] = useState<HTMLElement | null>(null);
+    const {defaultSettings, tuning, savedTunings, toggleSelectRootNote, toggleSelectPattern, toggleSelectTuning} = useDefaultSettings();
 
 
     const handleNotePopoverOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -24,6 +26,10 @@ export default function BasicButtons() {
         setPatternAnchorEl(event.currentTarget);
     };
 
+    const handleTuningPopoverOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setTuningAnchorEl(event.currentTarget);
+    };
+
     const handleNotePopoverClose = () => {
         setRootNoteAnchorEl(null);
     };
@@ -31,6 +37,10 @@ export default function BasicButtons() {
     const handlePatternPopoverClose = () => {
         setPatternAnchorEl(null);
     };
+
+    const handleTuningPopoverClose = () => {
+        setTuningAnchorEl(null);
+    }
 
     const handleNoteSelect = (note: string) => {
         toggleSelectRootNote(note);
@@ -41,6 +51,14 @@ export default function BasicButtons() {
         toggleSelectPattern(pattern);
         handlePatternPopoverClose();
     }
+
+    const handleTuningSelect = (tuningName : string) => {
+        toggleSelectTuning(tuningName);
+        handleTuningPopoverClose();
+    }
+
+
+    const tuningsConst = savedTunings ? Object.keys(savedTunings) : [];
 
     const mainButton = new MainButton('#e0e0e0', '8px 8px 15px #a3a3a3, -8px -8px 15px #ffffff', 'black',
         '#d1d1d1', '5px 5px 10px #a3a3a3, -5px -5px 10px #ffffff');
@@ -61,7 +79,7 @@ export default function BasicButtons() {
                      {defaultSettings.coreNoteName}
                 </StyledButton>
                 <StyledButton variant="contained" endIcon={<QueueMusic color="success" />} onClick={handlePatternPopoverOpen}>{defaultSettings.patternName}</StyledButton>
-                <StyledButton variant="contained" endIcon={<GuitarIcon />}>Tuning</StyledButton>
+                <StyledButton variant="contained" endIcon={<GuitarIcon />} onClick={handleTuningPopoverOpen} > {tuning?.tuningName} </StyledButton>
                 <StyledButton variant="contained" endIcon={<BubbleChartIcon color="secondary" />}>Intervals</StyledButton>
             </Stack>
             <NotePopover
@@ -77,6 +95,13 @@ export default function BasicButtons() {
                 onClose={handlePatternPopoverClose}
                 onPatternSelect={handlePatternSelect}
                 selectedPattern={defaultSettings.patternName}/>
+            <TuningPopover
+                anchorEl={tuningAnchorEl}
+                open={Boolean(tuningAnchorEl)}
+                onClose={handleTuningPopoverClose}
+                onTuningSelect={handleTuningSelect}
+                selectedTuning={tuning!.tuningName}
+                tunings={tuningsConst}/>
         </Box>
     );
 }
