@@ -17,6 +17,9 @@ export default function GuitarFretboard() {
         tuning,
         fretBoard,
         scale,
+        chordRootNote,
+        toggleChordRootNote,
+        showChordSequence,
         isLoading,
         isTuningLoading,
         isFretBoardLoading,
@@ -54,6 +57,17 @@ export default function GuitarFretboard() {
         return rsl === undefined ? '' : rsl.scalePos;
     }
 
+    const handleNoteClick = (noteName: string, noteScalePosition : string) => {
+        // console.log('handleNoteClick input: ');
+        // console.log('handleNoteClick.noteName = ' + noteName);
+        // console.log('handleNoteClick.noteScalePosition = ' + noteScalePosition);
+        // console.log('handleNoteClick.showChordSequence = ' + showChordSequence);
+        if (showChordSequence && noteScalePosition.length > 0) {
+            // console.log('handleNoteClick.check = successful' );
+            toggleChordRootNote(noteName);
+        }
+    }
+
     return (
         <GuitarNeck numberOfStrings={defNumberOfStrings}>
             {/*<Box sx={{ width: '7px' }} /> /!* Empty Box for spacing *!/*/}
@@ -78,16 +92,19 @@ export default function GuitarFretboard() {
                 Array.from(fretBoard!.frets.entries()).map(([fretNo, frets]) =>
                     frets
                         .filter(fret => fret.fretNo !== 0)
-                        .map(fret => (
-                            <MusicNote
-                                key={`note-${fret.fretNo}-${fret.stringNo}`}
-                                top={`calc(${(fret.stringNo - 1) * (100 / defNumberOfStrings)}% + ${stringOffset - 5}%)`}
-                                left={`calc(${(100 / numberOfFrets) * (fret.fretNo - 1)}% + ${(100 / numberOfFrets) / 2}%)`}
-                                noteName={fret.note.noteName}
-                                // noteScalePosition={'s'}
-                                noteScalePosition={calculatedScalePosition(scale as ScaleItem[], fret.note.noteName)}
-                            />
-                        ))
+                        .map(fret => {
+                            const scalePosition = calculatedScalePosition(scale as ScaleItem[], fret.note.noteName);
+                            return (
+                                <MusicNote
+                                    key={`note-${fret.fretNo}-${fret.stringNo}`}
+                                    top={`calc(${(fret.stringNo - 1) * (100 / defNumberOfStrings)}% + ${stringOffset - 5}%)`}
+                                    left={`calc(${(100 / numberOfFrets) * (fret.fretNo - 1)}% + ${(100 / numberOfFrets) / 2}%)`}
+                                    noteName={fret.note.noteName}
+                                    noteScalePosition={scalePosition}
+                                    onClick={() => handleNoteClick(fret.note.noteName, scalePosition)}
+                                />
+                            );
+                        })
                 )
             }
 

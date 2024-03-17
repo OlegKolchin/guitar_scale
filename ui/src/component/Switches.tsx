@@ -60,7 +60,16 @@ const IOSSwitch = styled((props: SwitchProps) => (
 
 
 export default function CustomizedSwitches() {
-    const { toggleShowScalePosition, toggleHideEmptyScaleNotes} = useDefaultSettings();
+    const {
+        toggleShowScalePosition,
+        toggleHideEmptyScaleNotes,
+        toggleHighlightCoreNote,
+        toggleShowChordSequence,
+        showScalePosition,
+        hideEmptyScaleNotes,
+        highlightCoreNote,
+        showChordSequence,
+    } = useDefaultSettings();
 
     return (
         <Stack direction="row" justifyContent="center" alignItems="center" sx={{ width: '100%', height: '35vh' }}>
@@ -73,8 +82,18 @@ export default function CustomizedSwitches() {
                 />
                 <FormControlLabel
                     control={<IOSSwitch sx={{ m: 1 }} />}
-                    label="Отображать ступень гаммы"
+                    label="Выделить тонику гаммы"
+                    onChange={toggleHighlightCoreNote}
+                />
+                <FormControlLabel
+                    control={<IOSSwitch sx={{ m: 1 }} />}
+                    label="Отображать ступени гаммы"
                     onChange={toggleShowScalePosition}
+                />
+                <FormControlLabel
+                    control={<IOSSwitch sx={{ m: 1, ml: 3 }} disabled={!showScalePosition}/>}
+                    label="По клику переключаться на ступени аккорда"
+                    onChange={toggleShowChordSequence}
                 />
                 {/*<FormControlLabel*/}
                 {/*    control={<IOSSwitch sx={{ m: 1 }} />}*/}

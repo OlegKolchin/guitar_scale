@@ -2,6 +2,8 @@ package com.guitar_scale.service;
 
 import com.guitar_scale.domain.*;
 import com.guitar_scale.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -10,6 +12,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class GuitarService {
+
+    private static final Logger logger = LoggerFactory.getLogger(GuitarService.class);
+
     private final BasicNoteRepository basicNoteRepository;
     private final TuningRepository tuningRepository;
     private final ScaleRepository scaleRepository;
@@ -157,6 +162,31 @@ public class GuitarService {
 
             scaleItem.setNoteName(basicNotes.get(coreNoteBasicListPosition).getNoteName());
             rsl.add(scaleItem);
+        }
+
+        return rsl;
+    }
+
+    public List<ScaleItem> createChordScale(String noteName, String patternName, String chordRootNote) {
+        List<ScaleItem> rsl = new ArrayList<>();
+        List<ScaleItem> doubleList = new ArrayList<>();
+        doubleList.addAll(createScale(noteName, patternName));
+        ScalePattern pattern = getScalePatternByName(patternName);
+        List<String> stepSequence = List.of(pattern.getStepSequence().split("\\|"));
+        doubleList.addAll(doubleList);
+
+        int scalePosIndex = 0;
+        for (ScaleItem item : doubleList) {
+            if (rsl.size() == stepSequence.size()) {
+                break;
+            }
+            if (rsl.isEmpty() && item.getNoteName().equals(chordRootNote)) {
+                item.setScalePos(stepSequence.get(scalePosIndex++));
+                rsl.add(item);
+            } else if (!rsl.isEmpty()) {
+                item.setScalePos(stepSequence.get(scalePosIndex++));
+                rsl.add(item);
+            }
         }
 
         return rsl;

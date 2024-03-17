@@ -13,6 +13,11 @@ interface NotePopoverProps {
 const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 const NotesContainer = styled('div')(({ theme }) => ({
+    // padding: '20px',
+    // backgroundColor: '#e0e0e0',
+
+    display: 'flex', // Enable flexbox
+    flexDirection: 'column',
     padding: '20px',
     backgroundColor: '#e0e0e0',
 }));
@@ -44,7 +49,7 @@ const NotePopover: React.FC<NotePopoverProps> = ({ anchorEl, open, onClose, onNo
             }}
             sx={{
                 marginTop: '100px',
-                marginLeft: '850px',
+                marginLeft: '45%',
             }}
         >
             <NotesContainer>

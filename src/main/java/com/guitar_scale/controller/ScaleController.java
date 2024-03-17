@@ -26,14 +26,20 @@ public class ScaleController {
         return guitarService.getScaleByName(name);
     }
 
-    @PostMapping
-    public void saveScale(@RequestBody Scale scale) {
-        guitarService.saveScale(scale);
-    }
+//    @PostMapping
+//    public void saveScale(@RequestBody Scale scale) {
+//        guitarService.saveScale(scale);
+//    }
 
     @GetMapping("/createScale")
     public List<ScaleItem> createScale(@RequestParam String noteName,
                                        @RequestParam String patternName) {
         return guitarService.createScale(noteName, patternName);
+    }
+
+    @GetMapping("/createChordScale")
+    public List<ScaleItem> createChordScale(@RequestParam String noteName,
+                                       @RequestParam String patternName, @RequestParam String chordRootNote) {
+        return guitarService.createChordScale(noteName, patternName, chordRootNote);
     }
 }

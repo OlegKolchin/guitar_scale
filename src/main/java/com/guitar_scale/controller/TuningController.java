@@ -25,16 +25,14 @@ public class TuningController {
 
     @GetMapping("/byName")
     public Tuning getTuningByName(@RequestParam String tuningName) {
-        String s = "s";
-        String b = "b";
         return guitarService.getTuningByName(tuningName);
     }
 
-    @PostMapping
-    public void saveTuning(@RequestBody Tuning tuning) {
-        String s = "s";
-        guitarService.saveTuning(tuning);
-    }
+//    @PostMapping
+//    public void saveTuning(@RequestBody Tuning tuning) {
+//        String s = "s";
+//        guitarService.saveTuning(tuning);
+//    }
 
     @GetMapping("/fret")
     public FretBoard getFrets(@RequestParam String tuningName) {

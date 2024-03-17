@@ -15,17 +15,17 @@ public class GuitarScaleApplication {
         SpringApplication.run(GuitarScaleApplication.class, args);
     }
 
-    @Bean
-    public CommandLineRunner run() {
-        return args -> {
-            try {
-                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                    Desktop.getDesktop().browse(new URI("http://localhost:8080"));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        };
-    }
+//    @Bean
+//    public CommandLineRunner run() {
+//        return args -> {
+//            try {
+//                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+//                    Desktop.getDesktop().browse(new URI("http://localhost:8080"));
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        };
+//    }
 
 }

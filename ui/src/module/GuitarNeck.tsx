@@ -15,9 +15,15 @@ const GuitarNeck: React.FC<GuitarNeckProps> = ({ children, numberOfStrings = 6 }
         <Box
             sx={{
                 width: {
-                    xs: '100%', // Full width on extra-small screens
+                    xs: '90%', // Full width on extra-small screens
                     sm: '75%', // 75% width starting from small screens
-                    md: '50%', // 50% width starting from medium screens
+                    md: '75%', // 50% width starting from medium screens
+                    lg: '70%',
+                    xl: '60%'
+                    // xxl: '70'
+                },
+                '@media (min-width:2000px)': {
+                    width: '50%', // Custom style for ultra-wide screens (above 2000px)
                 },
                 height: heightBasedOnStrings,
                 position: 'relative',

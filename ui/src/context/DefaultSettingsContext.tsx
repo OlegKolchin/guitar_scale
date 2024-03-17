@@ -12,6 +12,9 @@ interface DefaultSettingsContextType {
     tuning: Tuning | null;
     isTuningLoading: boolean;
 
+    chordRootNote: string;
+    toggleChordRootNote: (noteName: string) => void;
+
     savedTunings: { [key: string]: Tuning } | null;
     isSavedTuningsLoading: boolean;
 
@@ -33,6 +36,12 @@ interface DefaultSettingsContextType {
     toggleSelectPattern: (patternName : string) => void;
 
     toggleSelectTuning : (tuningName : string) => void;
+
+    highlightCoreNote: boolean;
+    toggleHighlightCoreNote: () => void;
+
+    showChordSequence: boolean;
+    toggleShowChordSequence: () => void;
 
 }
 
@@ -70,9 +79,16 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const [isScaleLoading, setIsScaleLoading] = useState(true);
     const [showScalePosition, setShowScalePosition] = useState(false);
     const [hideEmptyScaleNotes, setHideEmptyScaleNotes] = useState(false);
+    const [highlightCoreNote, setHighlightCoreNote] = useState(false);
+    const [showChordSequence, setShowChordSequence] = useState(false);
+    const [chordRootNote, setChordRootNote] = useState('');
 
     const toggleShowScalePosition = () => {
         setShowScalePosition(prevState => !prevState);
+        if (showScalePosition) {
+            toggleChordRootNote('');
+        }
+
     }
 
     const toggleHideEmptyScaleNotes = () => {
@@ -91,6 +107,11 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
             ...prevSettings,
             patternName: patternName
         }))
+    }
+
+    const toggleChordRootNote = (noteName : string) => {
+        // console.log('toggleChordRootNote input: note name is ' + noteName)
+        setChordRootNote(noteName);
     }
 
     const toggleSelectTuning = (tuningName: string) => {
@@ -113,6 +134,14 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         console.log(tuning)
     };
 
+    const toggleHighlightCoreNote = () => {
+        setHighlightCoreNote(prevState => !prevState);
+    }
+
+    const toggleShowChordSequence = () => {
+        setShowChordSequence(prevState => !prevState);
+    }
+
     // const fetchTuning = async (tuningName : string) => {
     //     setIsTuningLoading(true);
     //     try {
@@ -133,6 +162,24 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         setIsScaleLoading(true);
         try {
             const scaleResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/scale/createScale?noteName=${encodeURIComponent(coreNoteName)}&patternName=${patternName}`);
+            if (!scaleResponse.ok) {
+                throw new Error('Failed to fetch scale');
+            }
+            const scaleData: ScaleItem[] = await scaleResponse.json();
+            setScale(scaleData);
+            setChordRootNote('');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsScaleLoading(false);
+        }
+        console.log(scale)
+    };
+
+    const fetchChordScale = async (coreNoteName: string, patternName: string, chordRootNote : string) => {
+        setIsScaleLoading(true);
+        try {
+            const scaleResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/scale/createChordScale?noteName=${encodeURIComponent(coreNoteName)}&patternName=${patternName}&chordRootNote=${encodeURIComponent(chordRootNote)}`);
             if (!scaleResponse.ok) {
                 throw new Error('Failed to fetch scale');
             }
@@ -239,6 +286,14 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     }, [defaultSettings.coreNoteName, defaultSettings.patternName]);
 
     useEffect(() => {
+        if (chordRootNote) {
+            fetchChordScale(defaultSettings.coreNoteName, defaultSettings.patternName, chordRootNote);
+        } else {
+            fetchScale(defaultSettings.coreNoteName, defaultSettings.patternName)
+        }
+    }, [chordRootNote]);
+
+    useEffect(() => {
         if (tuning) {
             fetchFretBoard(tuning.tuningName);
         }
@@ -251,6 +306,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
             isLoading,
             tuning,
             isTuningLoading,
+            chordRootNote,
+            toggleChordRootNote,
             savedTunings,
             isSavedTuningsLoading,
             fretBoard,
@@ -263,7 +320,11 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
             toggleHideEmptyScaleNotes,
             toggleSelectRootNote,
             toggleSelectPattern,
-            toggleSelectTuning}}>
+            toggleSelectTuning,
+            highlightCoreNote,
+            toggleHighlightCoreNote,
+            showChordSequence,
+            toggleShowChordSequence}}>
             {children}
         </DefaultSettingsContext.Provider>
     );

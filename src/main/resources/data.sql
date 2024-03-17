@@ -16,6 +16,8 @@ insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) value
 insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP D', 'E', 'B', 'G', 'D', 'A', 'D', 6);
 insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP C', 'D', 'A', 'F', 'C', 'G', 'C', 6);
 insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP A', 'A', 'E', 'A', 'D', 'F#', 'B', 6);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP B', 'C#', 'G#', 'E', 'B', 'F#', 'B', 6);
+insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, number_of_strings) values('DROP G', 'A', 'E', 'C', 'G', 'D', 'G', 6);
 insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('DROP A7', 'E', 'B', 'G', 'D', 'A', 'E', 'A', 7);
 insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('B STANDARD7', 'E', 'B', 'G', 'D', 'A', 'E', 'B', 7);
 insert into tuning(tuning_name, s1, s2, s3, s4, s5, s6, s7, number_of_strings) values('C STANDARD7', 'F', 'C', 'G#', 'D#', 'A#', 'F', 'C', 7);

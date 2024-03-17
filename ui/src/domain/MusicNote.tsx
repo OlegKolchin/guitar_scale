@@ -9,6 +9,7 @@ interface MusicNoteProps {
     noteScalePosition: string;
     top: string;
     left: string;
+    onClick: () => void;
 }
 
 const StyledAvatar = styled(Avatar)({
@@ -29,16 +30,34 @@ const StyledAvatar = styled(Avatar)({
 
 });
 
-const MusicNote: React.FC<MusicNoteProps> = ({ noteName, noteScalePosition, top, left }) => {
-    const { showScalePosition, hideEmptyScaleNotes} = useDefaultSettings();
+const MusicNote: React.FC<MusicNoteProps> = ({ noteName, noteScalePosition, top, left , onClick}) => {
+    const { showScalePosition, hideEmptyScaleNotes, defaultSettings, highlightCoreNote, chordRootNote} = useDefaultSettings();
 
     if (hideEmptyScaleNotes && noteScalePosition === '') {
         return null;
     }
 
-    // You can adjust the colors as needed
-    const noteNameStyle = { color: 'black', fontWeight: 'bold' }; // Example color for noteName
-    const noteScalePositionStyle = { color: 'green', fontWeight: 'bolder', }; // Example color for noteScalePosition
+    const noteNameStyle =
+        (highlightCoreNote && noteName == defaultSettings.coreNoteName)
+        ? { color: 'white', fontWeight: 'bold' }
+        : noteName === chordRootNote
+        ? { color: '#755139FF', fontWeight: 'bold' }
+        : { color: 'black', fontWeight: 'bold' };
+
+
+    const noteScalePositionStyle =
+        (highlightCoreNote && noteName == defaultSettings.coreNoteName)
+        ? { color: 'white', fontWeight: 'bolder', }
+        : noteName === chordRootNote
+        ? { color: '#755139FF', fontWeight: 'bolder', }
+        : { color: 'green', fontWeight: 'bolder', };
+
+    const noteColor =
+        highlightCoreNote && noteName === defaultSettings.coreNoteName
+        ? '#CBCE91FF'
+        : noteName === chordRootNote
+        ? '#F2EDD7FF'
+        : 'rgb(224,218,223)';
 
     const avatarContent = showScalePosition ? (
         <React.Fragment>
@@ -49,17 +68,21 @@ const MusicNote: React.FC<MusicNoteProps> = ({ noteName, noteScalePosition, top,
         <span style={noteNameStyle}>{noteName}</span>
     );
 
+
+
     return (
         <StyledAvatar
             sx={{
                 position: 'absolute',
+                backgroundColor: noteColor,
                 top: top,
                 left: left,
                 transform: 'translateX(-50%)',
-                display: 'flex', // Ensure the content is centered
+                display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
             }}
+            onClick={onClick}
         >
             {avatarContent}
         </StyledAvatar>

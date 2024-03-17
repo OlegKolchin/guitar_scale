@@ -46,7 +46,7 @@ const PatternPopover: React.FC<PatternPopoverProps> = ({ anchorEl, open, onClose
             }}
             sx={{
                 marginTop: '100px',
-                marginLeft: '850px',
+                marginLeft: '45%',
             }}
         >
             <PatternContainer>

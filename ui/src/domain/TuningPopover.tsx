@@ -46,7 +46,7 @@ const TuningPopover: React.FC<TuningPopoverProps> = ({ anchorEl, open, onClose, 
             }}
             sx={{
                 marginTop: '100px',
-                marginLeft: '850px',
+                marginLeft: '45%',
             }}
         >
             <TuningContainer>
