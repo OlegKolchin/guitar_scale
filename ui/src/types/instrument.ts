@@ -1,0 +1,1 @@
+export type InstrumentType = 'synth' | 'pluck' | 'mono';
