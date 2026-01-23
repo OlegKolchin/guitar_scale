@@ -6,8 +6,7 @@ import { useDefaultSettings } from './context/DefaultSettingsContext';
 import LoadingElement from "./component/LoadingElement";
 import CustomizedSwitches from "./component/Switches";
 import Footer from "./domain/Footer";
-import Line from "./domain/Line";
-import LineDrawingComponent from "./domain/LineDrawingComponent";
+
 
 function App() {
 

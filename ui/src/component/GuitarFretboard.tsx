@@ -8,7 +8,6 @@ import {useDefaultSettings} from "../context/DefaultSettingsContext";
 import LoadingElement from "./LoadingElement";
 import {ScaleItem} from "../interface/ScaleItem";
 import {FretDot} from "../domain/FretDot";
-import LineDrawingComponent from "../domain/LineDrawingComponent";
 
 
 export default function GuitarFretboard() {

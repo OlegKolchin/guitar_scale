@@ -1,72 +1,90 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { DefaultSettings } from '../interface/DefaultSettings'; // Adjust the import path as necessary
-import { Tuning } from '../interface/Tuning'; // Adjust the import path as necessary
-import {FretBoard} from "../interface/FretBoard";
-import {ScaleItem} from "../interface/ScaleItem";
-import {TuningItem} from "../interface/TuningItem";
+// context/DefaultSettingsContext.tsx
 
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { guitarApi } from '../service/GuitarApiService';
+import { DefaultSettings } from '../interface/DefaultSettings';
+import { TuningItem } from '../interface/TuningItem';
+import { ScaleItem } from '../interface/ScaleItem';
+import { FretBoard } from '../interface/FretBoard';
+
+// ============================================================================
+// CONTEXT INTERFACE
+// ============================================================================
 
 interface DefaultSettingsContextType {
+    // Settings State
     defaultSettings: DefaultSettings;
     isLoading: boolean;
 
+    // Tuning State
     tuning: TuningItem[] | null;
     isTuningLoading: boolean;
-
-    chordRootNote: string;
-    toggleChordRootNote: (noteName: string) => void;
-
     savedTunings: { [key: string]: TuningItem[] } | null;
     isSavedTuningsLoading: boolean;
 
+    // FretBoard State
     fretBoard: FretBoard | null;
     isFretBoardLoading: boolean;
 
-    scale : ScaleItem[] | null;
+    // Scale State
+    scale: ScaleItem[] | null;
     isScaleLoading: boolean;
-
     showScalePosition: boolean;
+    hideEmptyScaleNotes: boolean;
 
-    toggleShowScalePosition: () => void;
-
-    hideEmptyScaleNotes : boolean;
-    toggleHideEmptyScaleNotes: () => void;
-
-    toggleSelectRootNote: (noteName : string) => void;
-
-    toggleSelectPattern: (patternName : string) => void;
-
-    toggleSelectTuning : (tuningName : string) => void;
-
-    highlightCoreNote: boolean;
-    toggleHighlightCoreNote: () => void;
-
+    // Chord State
+    chordRootNote: string;
     showChordSequence: boolean;
-    toggleShowChordSequence: () => void;
 
+    // Note & Pattern State
+    highlightCoreNote: boolean;
+
+    // Interval State
     intervalDestinationPos: number;
-    toggleIntervalDestinationPos: (absolutePos: number) => void;
-
     intervalRootPos: number;
+
+    // Actions
+    toggleChordRootNote: (noteName: string) => void;
+    toggleShowScalePosition: () => void;
+    toggleHideEmptyScaleNotes: () => void;
+    toggleSelectRootNote: (noteName: string) => void;
+    toggleSelectPattern: (patternName: string) => void;
+    toggleSelectTuning: (tuningName: string) => void;
+    toggleHighlightCoreNote: () => void;
+    toggleShowChordSequence: () => void;
+    toggleIntervalDestinationPos: (absolutePos: number) => void;
     toggleIntervalRootPos: (absolutePos: number) => void;
-
 }
-
-const DefaultSettingsContext = createContext<DefaultSettingsContextType | undefined>(undefined);
-
-export const useDefaultSettings = () => {
-    const context = useContext(DefaultSettingsContext);
-    if (context === undefined) {
-        throw new Error('useDefaultSettings must be used within a DefaultSettingsProvider');
-    }
-    return context;
-};
 
 interface Props {
     children: ReactNode;
 }
 
+// ============================================================================
+// CONTEXT SETUP
+// ============================================================================
+
+const DefaultSettingsContext = createContext<DefaultSettingsContextType | undefined>(undefined);
+
+export const useDefaultSettings = () => {
+    const context = useContext(DefaultSettingsContext);
+    if (!context) {
+        throw new Error('useDefaultSettings must be used within a DefaultSettingsProvider');
+    }
+    return context;
+};
+
+// ============================================================================
+// PROVIDER COMPONENT
+// ============================================================================
+
 export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
+
+    // ------------------------------------------------------------------------
+    // STATE DECLARATIONS
+    // ------------------------------------------------------------------------
+
+    // Settings
     const [defaultSettings, setDefaultSettings] = useState<DefaultSettings>({
         profileName: "MyProfile",
         tuningName: "E_STANDARD",
@@ -76,212 +94,165 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         activeInd: "Y"
     });
     const [isLoading, setIsLoading] = useState(true);
+
+    // Tuning
     const [tuning, setTuning] = useState<TuningItem[] | null>(null);
     const [isTuningLoading, setIsTuningLoading] = useState(true);
     const [savedTunings, setSavedTunings] = useState<{ [key: string]: TuningItem[] } | null>(null);
     const [isSavedTuningsLoading, setIsSavedTuningsLoading] = useState(true);
+
+    // FretBoard
     const [fretBoard, setFretBoard] = useState<FretBoard | null>(null);
     const [isFretBoardLoading, setIsFretBoardLoading] = useState(true);
+
+    // Scale
     const [scale, setScale] = useState<ScaleItem[] | null>(null);
     const [isScaleLoading, setIsScaleLoading] = useState(true);
     const [showScalePosition, setShowScalePosition] = useState(false);
     const [hideEmptyScaleNotes, setHideEmptyScaleNotes] = useState(false);
-    const [highlightCoreNote, setHighlightCoreNote] = useState(false);
-    const [showChordSequence, setShowChordSequence] = useState(false);
+
+    // Chord
     const [chordRootNote, setChordRootNote] = useState('');
+    const [showChordSequence, setShowChordSequence] = useState(false);
+
+    // Note & Pattern
+    const [highlightCoreNote, setHighlightCoreNote] = useState(false);
+
+    // Interval
     const [intervalDestinationPos, setIntervalDestinationPos] = useState(0);
     const [intervalRootPos, setIntervalRootPos] = useState(0);
 
-    const toggleShowScalePosition = () => {
-        setShowScalePosition(prevState => !prevState);
-        if (showScalePosition) {
-            toggleChordRootNote('');
-        }
+    // ------------------------------------------------------------------------
+    // TOGGLE FUNCTIONS (Actions)
+    // ------------------------------------------------------------------------
 
-    }
+    const toggleShowScalePosition = () => {
+        setShowScalePosition(prev => !prev);
+        if (showScalePosition) {
+            setChordRootNote('');
+        }
+    };
 
     const toggleHideEmptyScaleNotes = () => {
-        setHideEmptyScaleNotes(prevState => !prevState);
-    }
+        setHideEmptyScaleNotes(prev => !prev);
+    };
 
-    const toggleSelectRootNote = (noteName : string) => {
-        setDefaultSettings(prevSettings => ({
-            ...prevSettings,
+    const toggleSelectRootNote = (noteName: string) => {
+        setDefaultSettings(prev => ({
+            ...prev,
             coreNoteName: noteName
-        }))
-    }
+        }));
+    };
 
-    const toggleSelectPattern = (patternName : string) => {
-        setDefaultSettings(prevSettings => ({
-            ...prevSettings,
+    const toggleSelectPattern = (patternName: string) => {
+        setDefaultSettings(prev => ({
+            ...prev,
             patternName: patternName
-        }))
-    }
+        }));
+    };
 
-    const toggleChordRootNote = (noteName : string) => {
-        // console.log('toggleChordRootNote input: note name is ' + noteName)
+    const toggleChordRootNote = (noteName: string) => {
         setChordRootNote(noteName);
-    }
+    };
 
     const toggleSelectTuning = (tuningName: string) => {
-        if (savedTunings) {
-            console.log(savedTunings)
-            const newTuning: TuningItem[] = savedTunings[tuningName];
-            console.log('New Tuning is: ')
-            console.log(newTuning);
-            if (newTuning) {
-                console.log('Setting number of strings')
-                setTuning(newTuning);
-                // setDefaultSettings(prevSettings => ({
-                //     ...prevSettings,
-                //     numberOfStrings: newTuning.numberOfStrings,
-                //     tuningName: newTuning.tuningName
-                // }));
+        if (!savedTunings) return;
 
-            }
+        const newTuning: TuningItem[] = savedTunings[tuningName];
+        if (newTuning) {
+            setTuning(newTuning);
         }
-        console.log(tuning)
     };
 
     const toggleHighlightCoreNote = () => {
-        setHighlightCoreNote(prevState => !prevState);
-    }
+        setHighlightCoreNote(prev => !prev);
+    };
 
     const toggleShowChordSequence = () => {
-        setShowChordSequence(prevState => !prevState);
-    }
+        setShowChordSequence(prev => !prev);
+    };
 
-    const toggleIntervalDestinationPos = (absolutePos : number) => {
+    const toggleIntervalDestinationPos = (absolutePos: number) => {
         setIntervalDestinationPos(absolutePos);
-    }
+    };
 
-    const toggleIntervalRootPos = (absolutePos : number) => {
+    const toggleIntervalRootPos = (absolutePos: number) => {
         setIntervalRootPos(absolutePos);
-    }
-    // const fetchTuning = async (tuningName : string) => {
-    //     setIsTuningLoading(true);
-    //     try {
-    //         const tuningResponse = await fetch(`http://localhost:8080/tuning/byName?tuningName=${tuningName}`);
-    //         if (!tuningResponse.ok) {
-    //             throw new Error('Failed to fetch tuning');
-    //         }
-    //         const tuningData: Tuning = await tuningResponse.json();
-    //         setTuning(tuningData);
-    //     } catch (error) {
-    //         console.error(error)
-    //     } finally {
-    //         setIsTuningLoading(false);
-    //     }
-    // }
+    };
+
+    // ------------------------------------------------------------------------
+    // API WRAPPER FUNCTIONS
+    // ------------------------------------------------------------------------
 
     const fetchScale = async (coreNoteName: string, patternName: string) => {
         setIsScaleLoading(true);
         try {
-            const scaleResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/scale/createScale?noteName=${encodeURIComponent(coreNoteName)}&patternName=${patternName}`);
-            if (!scaleResponse.ok) {
-                throw new Error('Failed to fetch scale');
-            }
-            const scaleData: ScaleItem[] = await scaleResponse.json();
-            setScale(scaleData);
+            const data = await guitarApi.createScale(coreNoteName, patternName);
+            setScale(data);
             setChordRootNote('');
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching scale:', error);
         } finally {
             setIsScaleLoading(false);
         }
-        console.log(scale)
     };
 
-    const fetchChordScale = async (coreNoteName: string, patternName: string, chordRootNote : string) => {
+    const fetchChordScale = async (coreNoteName: string, patternName: string, chordRootNote: string) => {
         setIsScaleLoading(true);
         try {
-            const scaleResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/scale/createChordScale?noteName=${encodeURIComponent(coreNoteName)}&patternName=${patternName}&chordRootNote=${encodeURIComponent(chordRootNote)}`);
-            if (!scaleResponse.ok) {
-                throw new Error('Failed to fetch scale');
-            }
-            const scaleData: ScaleItem[] = await scaleResponse.json();
-            setScale(scaleData);
+            const data = await guitarApi.createChordScale(coreNoteName, patternName, chordRootNote);
+            setScale(data);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching chord scale:', error);
         } finally {
             setIsScaleLoading(false);
         }
-        console.log(scale)
     };
 
-    const fetchFretBoard = async (tuningName : string) => {
-        // setIsFretBoardLoading(true);
+    const fetchFretBoard = async (tuningName: string) => {
         try {
-            const fretBoardResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/fret?tuningName=${tuningName}`);
-            if (!fretBoardResponse.ok) {
-                throw new Error('Failed to fetch fretBoard');
-            }
-            const fretBoardData = await fretBoardResponse.json();
-
-            const fretsMap = new Map(Object.entries(fretBoardData.frets).map(([key, value]) => [parseInt(key, 10), value]));
-            const newFretBoard = {
-                ...fretBoardData,
-                frets: fretsMap
-            };
-            console.log(newFretBoard);
-            setFretBoard(newFretBoard);
+            const data = await guitarApi.getFretBoard(tuningName);
+            setFretBoard(data);
         } catch (error) {
-            console.error(error);
-        } finally {
-            // setIsFretBoardLoading(false);
+            console.error('Error fetching fretBoard:', error);
         }
-        console.log(fretBoard)
-    }
+    };
 
+    // ------------------------------------------------------------------------
+    // EFFECTS
+    // ------------------------------------------------------------------------
+
+    // Initial data load on mount
     useEffect(() => {
-        const fetchDefaultSettings = async () => {
+        const fetchInitialData = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/defaultSettings`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch default settings');
-                }
-                const data: DefaultSettings = await response.json();
-                setDefaultSettings(data);
-                setIsLoading(false);
+                // Fetch default settings
+                const settingsData = await guitarApi.getDefaultSettings();
+                setDefaultSettings(settingsData);
 
-                /* Fetching default tuning  */
-                const tuningResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/newTuning?tuningName=${data.tuningName}`);
-                if (!tuningResponse.ok) {
-                    throw new Error('Failed to fetch tuning');
-                }
-                const tuningData: TuningItem[] = await tuningResponse.json();
+                // Fetch default tuning
+                const tuningData = await guitarApi.getTuningByName(settingsData.tuningName);
                 setTuning(tuningData);
 
-                /* Fetching all saved tunings */
-                const tuningsResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/getAllTunings`);
-                if (!tuningsResponse.ok) {
-                    throw new Error('Failed to fetch tunings!')
-                }
-                // const tuningsArray : TuningItem[][] = await tuningsResponse.json();
-                const tuningMap : { [key: string]: TuningItem[] } = await tuningsResponse.json();
+                // Fetch all saved tunings
+                const tuningMap = await guitarApi.getAllTunings();
                 setSavedTunings(tuningMap);
 
-                const fretBoardResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/fret?tuningName=${data.tuningName}`);
-                if (!fretBoardResponse.ok) {
-                    throw new Error('Failed to fetch fretBoard');
-                }
-                const fretBoardData = await fretBoardResponse.json();
+                // Fetch fretboard
+                const fretBoardData = await guitarApi.getFretBoard(settingsData.tuningName);
+                setFretBoard(fretBoardData);
 
-                const fretsMap = new Map(Object.entries(fretBoardData.frets).map(([key, value]) => [parseInt(key, 10), value]));
-                const newFretBoard = {
-                    ...fretBoardData,
-                    frets: fretsMap
-                };
-
-                setFretBoard(newFretBoard);
-
-                const scaleResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/scale/createScale?noteName=${encodeURIComponent(data.coreNoteName)}&patternName=${data.patternName}`);
-                const scaleData : ScaleItem[] = await scaleResponse.json();
+                // Fetch scale
+                const scaleData = await guitarApi.createScale(
+                    settingsData.coreNoteName,
+                    settingsData.patternName
+                );
                 setScale(scaleData);
 
             } catch (error) {
-                console.error(error);
+                console.error('Error loading initial data:', error);
             } finally {
+                setIsLoading(false);
                 setIsTuningLoading(false);
                 setIsFretBoardLoading(false);
                 setIsScaleLoading(false);
@@ -289,59 +260,71 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
             }
         };
 
-        fetchDefaultSettings();
+        fetchInitialData();
     }, []);
 
+    // Refetch scale when core note or pattern changes
     useEffect(() => {
         if (defaultSettings.coreNoteName && defaultSettings.patternName) {
             fetchScale(defaultSettings.coreNoteName, defaultSettings.patternName);
         }
     }, [defaultSettings.coreNoteName, defaultSettings.patternName]);
 
+    // Refetch scale when chord root note changes
     useEffect(() => {
         if (chordRootNote) {
             fetchChordScale(defaultSettings.coreNoteName, defaultSettings.patternName, chordRootNote);
         } else {
-            fetchScale(defaultSettings.coreNoteName, defaultSettings.patternName)
+            fetchScale(defaultSettings.coreNoteName, defaultSettings.patternName);
         }
     }, [chordRootNote]);
 
+    // Refetch fretboard when tuning changes
     useEffect(() => {
-        if (tuning) {
-            fetchFretBoard(tuning[0]?.tuningName);
+        if (tuning?.[0]?.tuningName) {
+            fetchFretBoard(tuning[0].tuningName);
         }
     }, [tuning]);
 
+    // ------------------------------------------------------------------------
+    // CONTEXT VALUE
+    // ------------------------------------------------------------------------
+
+    const contextValue: DefaultSettingsContextType = {
+        // State
+        defaultSettings,
+        isLoading,
+        tuning,
+        isTuningLoading,
+        savedTunings,
+        isSavedTuningsLoading,
+        fretBoard,
+        isFretBoardLoading,
+        scale,
+        isScaleLoading,
+        showScalePosition,
+        hideEmptyScaleNotes,
+        chordRootNote,
+        showChordSequence,
+        highlightCoreNote,
+        intervalDestinationPos,
+        intervalRootPos,
+
+        // Actions
+        toggleChordRootNote,
+        toggleShowScalePosition,
+        toggleHideEmptyScaleNotes,
+        toggleSelectRootNote,
+        toggleSelectPattern,
+        toggleSelectTuning,
+        toggleHighlightCoreNote,
+        toggleShowChordSequence,
+        toggleIntervalDestinationPos,
+        toggleIntervalRootPos
+    };
 
     return (
-        <DefaultSettingsContext.Provider value={{
-            defaultSettings,
-            isLoading,
-            tuning,
-            isTuningLoading,
-            chordRootNote,
-            toggleChordRootNote,
-            savedTunings,
-            isSavedTuningsLoading,
-            fretBoard,
-            isFretBoardLoading,
-            scale,
-            isScaleLoading,
-            showScalePosition,
-            toggleShowScalePosition,
-            hideEmptyScaleNotes,
-            toggleHideEmptyScaleNotes,
-            toggleSelectRootNote,
-            toggleSelectPattern,
-            toggleSelectTuning,
-            highlightCoreNote,
-            toggleHighlightCoreNote,
-            showChordSequence,
-            toggleShowChordSequence,
-            intervalDestinationPos,
-            toggleIntervalDestinationPos,
-            intervalRootPos,
-            toggleIntervalRootPos}}>
+        <DefaultSettingsContext.Provider value={contextValue}>
             {children}
         </DefaultSettingsContext.Provider>
     );
