@@ -1,6 +1,8 @@
 import * as React from "react";
 
 export interface BasicNote{
-    noteName:string,
-    basicPos:number
+    noteName : string,
+    basicPos : number,
+    octave : number,
+    absolutePos: number
 }

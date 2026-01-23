@@ -3,19 +3,20 @@ import { DefaultSettings } from '../interface/DefaultSettings'; // Adjust the im
 import { Tuning } from '../interface/Tuning'; // Adjust the import path as necessary
 import {FretBoard} from "../interface/FretBoard";
 import {ScaleItem} from "../interface/ScaleItem";
+import {TuningItem} from "../interface/TuningItem";
 
 
 interface DefaultSettingsContextType {
     defaultSettings: DefaultSettings;
     isLoading: boolean;
 
-    tuning: Tuning | null;
+    tuning: TuningItem[] | null;
     isTuningLoading: boolean;
 
     chordRootNote: string;
     toggleChordRootNote: (noteName: string) => void;
 
-    savedTunings: { [key: string]: Tuning } | null;
+    savedTunings: { [key: string]: TuningItem[] } | null;
     isSavedTuningsLoading: boolean;
 
     fretBoard: FretBoard | null;
@@ -43,6 +44,12 @@ interface DefaultSettingsContextType {
     showChordSequence: boolean;
     toggleShowChordSequence: () => void;
 
+    intervalDestinationPos: number;
+    toggleIntervalDestinationPos: (absolutePos: number) => void;
+
+    intervalRootPos: number;
+    toggleIntervalRootPos: (absolutePos: number) => void;
+
 }
 
 const DefaultSettingsContext = createContext<DefaultSettingsContextType | undefined>(undefined);
@@ -69,9 +76,9 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         activeInd: "Y"
     });
     const [isLoading, setIsLoading] = useState(true);
-    const [tuning, setTuning] = useState<Tuning | null>(null);
+    const [tuning, setTuning] = useState<TuningItem[] | null>(null);
     const [isTuningLoading, setIsTuningLoading] = useState(true);
-    const [savedTunings, setSavedTunings] = useState<{ [key: string]: Tuning } | null>(null);
+    const [savedTunings, setSavedTunings] = useState<{ [key: string]: TuningItem[] } | null>(null);
     const [isSavedTuningsLoading, setIsSavedTuningsLoading] = useState(true);
     const [fretBoard, setFretBoard] = useState<FretBoard | null>(null);
     const [isFretBoardLoading, setIsFretBoardLoading] = useState(true);
@@ -82,6 +89,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const [highlightCoreNote, setHighlightCoreNote] = useState(false);
     const [showChordSequence, setShowChordSequence] = useState(false);
     const [chordRootNote, setChordRootNote] = useState('');
+    const [intervalDestinationPos, setIntervalDestinationPos] = useState(0);
+    const [intervalRootPos, setIntervalRootPos] = useState(0);
 
     const toggleShowScalePosition = () => {
         setShowScalePosition(prevState => !prevState);
@@ -117,7 +126,7 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const toggleSelectTuning = (tuningName: string) => {
         if (savedTunings) {
             console.log(savedTunings)
-            const newTuning: Tuning = savedTunings[tuningName];
+            const newTuning: TuningItem[] = savedTunings[tuningName];
             console.log('New Tuning is: ')
             console.log(newTuning);
             if (newTuning) {
@@ -142,6 +151,13 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         setShowChordSequence(prevState => !prevState);
     }
 
+    const toggleIntervalDestinationPos = (absolutePos : number) => {
+        setIntervalDestinationPos(absolutePos);
+    }
+
+    const toggleIntervalRootPos = (absolutePos : number) => {
+        setIntervalRootPos(absolutePos);
+    }
     // const fetchTuning = async (tuningName : string) => {
     //     setIsTuningLoading(true);
     //     try {
@@ -229,23 +245,20 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
                 setIsLoading(false);
 
                 /* Fetching default tuning  */
-                const tuningResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/byName?tuningName=${data.tuningName}`);
+                const tuningResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/newTuning?tuningName=${data.tuningName}`);
                 if (!tuningResponse.ok) {
                     throw new Error('Failed to fetch tuning');
                 }
-                const tuningData: Tuning = await tuningResponse.json();
+                const tuningData: TuningItem[] = await tuningResponse.json();
                 setTuning(tuningData);
 
                 /* Fetching all saved tunings */
-                const tuningsResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning`);
+                const tuningsResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/getAllTunings`);
                 if (!tuningsResponse.ok) {
                     throw new Error('Failed to fetch tunings!')
                 }
-                const tuningsArray : Tuning[] = await tuningsResponse.json();
-                const tuningMap = tuningsArray.reduce((acc, tuning) => {
-                    acc[tuning.tuningName] = tuning;
-                    return acc;
-                }, {} as { [key: string]: Tuning });
+                // const tuningsArray : TuningItem[][] = await tuningsResponse.json();
+                const tuningMap : { [key: string]: TuningItem[] } = await tuningsResponse.json();
                 setSavedTunings(tuningMap);
 
                 const fretBoardResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/tuning/fret?tuningName=${data.tuningName}`);
@@ -295,7 +308,7 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
 
     useEffect(() => {
         if (tuning) {
-            fetchFretBoard(tuning.tuningName);
+            fetchFretBoard(tuning[0]?.tuningName);
         }
     }, [tuning]);
 
@@ -324,7 +337,11 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
             highlightCoreNote,
             toggleHighlightCoreNote,
             showChordSequence,
-            toggleShowChordSequence}}>
+            toggleShowChordSequence,
+            intervalDestinationPos,
+            toggleIntervalDestinationPos,
+            intervalRootPos,
+            toggleIntervalRootPos}}>
             {children}
         </DefaultSettingsContext.Provider>
     );

@@ -2,11 +2,12 @@ package com.guitar_scale.controller;
 
 import com.guitar_scale.domain.DefaultSettings;
 import com.guitar_scale.domain.FretBoard;
-import com.guitar_scale.domain.Tuning;
+import com.guitar_scale.domain.TuningItem;
 import com.guitar_scale.service.GuitarService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tuning")
@@ -18,16 +19,6 @@ public class TuningController {
         this.guitarService = guitarService;
     }
 
-    @GetMapping
-    public List<Tuning> getAllTunings() {
-        return guitarService.getAllTuning();
-    }
-
-    @GetMapping("/byName")
-    public Tuning getTuningByName(@RequestParam String tuningName) {
-        return guitarService.getTuningByName(tuningName);
-    }
-
 //    @PostMapping
 //    public void saveTuning(@RequestBody Tuning tuning) {
 //        String s = "s";
@@ -36,7 +27,12 @@ public class TuningController {
 
     @GetMapping("/fret")
     public FretBoard getFrets(@RequestParam String tuningName) {
-        return guitarService.getFretBoard(tuningName);
+        return guitarService.getFretBoardNew(tuningName);
+    }
+
+    @GetMapping("fretNew")
+    public FretBoard getFretsNew(@RequestParam String tuningName) {
+        return guitarService.getFretBoardNew(tuningName);
     }
 
     @GetMapping("/defaultTuning")
@@ -52,5 +48,15 @@ public class TuningController {
     @GetMapping("/defaultSettings")
     public DefaultSettings getDefaultSettings() {
         return guitarService.getDefaultSettings();
+    }
+
+    @GetMapping("/newTuning")
+    public List<TuningItem> getTuningItemByName(@RequestParam String tuningName) {
+        return guitarService.getTuningItemByName(tuningName);
+    }
+
+    @GetMapping("/getAllTunings")
+    public Map<String, List<TuningItem>> getAllSavedTunings() {
+        return guitarService.getAllSavedTunings();
     }
 }

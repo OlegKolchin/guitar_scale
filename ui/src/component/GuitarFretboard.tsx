@@ -1,4 +1,3 @@
-import React from 'react';
 import GuitarNeck from "../module/GuitarNeck";
 import { NickelString } from "../domain/NickelString";
 import Box from "@mui/material/Box";
@@ -9,6 +8,8 @@ import {useDefaultSettings} from "../context/DefaultSettingsContext";
 import LoadingElement from "./LoadingElement";
 import {ScaleItem} from "../interface/ScaleItem";
 import {FretDot} from "../domain/FretDot";
+import LineDrawingComponent from "../domain/LineDrawingComponent";
+
 
 export default function GuitarFretboard() {
 
@@ -31,26 +32,12 @@ export default function GuitarFretboard() {
     // }
 
     console.log("tuning is : " + tuning)
-    const defNumberOfStrings = tuning!.numberOfStrings;
+    const defNumberOfStrings = tuning!.length;
     console.log("defaultNumber of str:" + defNumberOfStrings)
     const numberOfFrets = 15;
     const stringOffset = 6.6;
-
-
-    // const dotFrets = [1, 3, 5, 7, 9, 12, 15];
     const dotFrets = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-
     const dotOffset = stringOffset + 5;
-
-    const openStringNotes = [tuning!.s1, tuning!.s2, tuning!.s3, tuning!.s4, tuning!.s5, tuning!.s6];
-
-    if (tuning?.s7 !== null) {
-        openStringNotes.push(tuning!.s7);
-    }
-
-    if (tuning?.s8 !== null) {
-        openStringNotes.push(tuning!.s8);
-    }
 
     const calculatedScalePosition = (scale: ScaleItem[], noteName: string): string => {
         const rsl = scale.find(scaleItem => scaleItem.noteName === noteName);
@@ -58,10 +45,6 @@ export default function GuitarFretboard() {
     }
 
     const handleNoteClick = (noteName: string, noteScalePosition : string) => {
-        // console.log('handleNoteClick input: ');
-        // console.log('handleNoteClick.noteName = ' + noteName);
-        // console.log('handleNoteClick.noteScalePosition = ' + noteScalePosition);
-        // console.log('handleNoteClick.showChordSequence = ' + showChordSequence);
         if (showChordSequence && noteScalePosition.length > 0) {
             // console.log('handleNoteClick.check = successful' );
             toggleChordRootNote(noteName);
@@ -94,13 +77,17 @@ export default function GuitarFretboard() {
                         .filter(fret => fret.fretNo !== 0)
                         .map(fret => {
                             const scalePosition = calculatedScalePosition(scale as ScaleItem[], fret.note.noteName);
+                            const top = `calc(${(fret.stringNo - 1) * (100 / defNumberOfStrings)}% + ${stringOffset - 5}%)`;
+                            const left = `calc(${(100 / numberOfFrets) * (fret.fretNo - 1)}% + ${(100 / numberOfFrets) / 2}%)`;
+                            console.log(top);
                             return (
                                 <MusicNote
                                     key={`note-${fret.fretNo}-${fret.stringNo}`}
-                                    top={`calc(${(fret.stringNo - 1) * (100 / defNumberOfStrings)}% + ${stringOffset - 5}%)`}
-                                    left={`calc(${(100 / numberOfFrets) * (fret.fretNo - 1)}% + ${(100 / numberOfFrets) / 2}%)`}
+                                    top={top}
+                                    left={left}
                                     noteName={fret.note.noteName}
                                     noteScalePosition={scalePosition}
+                                    absolutePosition={fret.note.absolutePos}
                                     onClick={() => handleNoteClick(fret.note.noteName, scalePosition)}
                                 />
                             );
@@ -119,13 +106,15 @@ export default function GuitarFretboard() {
                 ))
             }
 
-            {openStringNotes.map((note, stringIndex) => (
+            {tuning?.map((tuningItem, stringIndex) => (
                 <MainNote
                     key={`open-string-note-${stringIndex}`}
                     top={`calc(${stringIndex * (100 / defNumberOfStrings)}% + ${stringOffset - 5}%)`}
                     left={'-2%'}
-                    noteName={note}/>
+                    noteName={tuningItem.noteName}/>
             ))}
+            {/*<LineDrawingComponent/>*/}
+
         </GuitarNeck>
     );
 }

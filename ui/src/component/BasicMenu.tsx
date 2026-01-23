@@ -162,7 +162,7 @@ export default function BasicButtons() {
                     {defaultSettings.coreNoteName}
                 </StyledButton>
                 <StyledButton variant="contained" endIcon={<QueueMusic color="success" />} onClick={handlePatternPopoverOpen}>{defaultSettings.patternName}</StyledButton>
-                <StyledButton variant="contained" endIcon={<GuitarIcon />} onClick={handleTuningPopoverOpen} > {tuning?.tuningName} </StyledButton>
+                <StyledButton variant="contained" endIcon={<GuitarIcon />} onClick={handleTuningPopoverOpen} > {tuning ? tuning[0].tuningName : ''} </StyledButton>
                 <StyledButton variant="contained" endIcon={<BubbleChartIcon color="secondary" />} onClick={playScale}>PLAY SCALE</StyledButton>
             </Stack>
             <NotePopover
@@ -183,7 +183,7 @@ export default function BasicButtons() {
                 open={Boolean(tuningAnchorEl)}
                 onClose={handleTuningPopoverClose}
                 onTuningSelect={handleTuningSelect}
-                selectedTuning={tuning!.tuningName}
+                selectedTuning={tuning ? tuning[0].tuningName : ''}
                 tunings={tuningsConst}/>
         </Box>
     );

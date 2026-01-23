@@ -3,13 +3,11 @@ package com.guitar_scale.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@NoArgsConstructor
-@ToString
+@Data
 @Entity
 @Table(name = "basic_note")
+@AllArgsConstructor
+@NoArgsConstructor
 public class BasicNote {
     @Column(unique = true, name = "note_name")
     @Id
@@ -18,10 +16,20 @@ public class BasicNote {
     @Column(unique = true, name = "basic_pos")
     private Integer basicPos;
 
-    public BasicNote(String noteName, Integer basicPos) {
-        this.noteName = noteName;
-        this.basicPos = basicPos;
+    @Transient
+    private Integer octave;
+
+    @Transient
+    private Integer absolutePos;
+
+    public void updateAbsolutePos() {
+        if (octave != null && basicPos != null) {
+            this.absolutePos = calculateAbsolutePos(basicPos, octave);
+        }
     }
 
+    private int calculateAbsolutePos(Integer basicPos, Integer octave) {
+        return octave == 1 ? basicPos : (octave - 1) * 12 + basicPos;
+    }
 
 }

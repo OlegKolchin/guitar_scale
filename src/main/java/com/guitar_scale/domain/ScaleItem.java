@@ -1,5 +1,6 @@
 package com.guitar_scale.domain;
 
+import com.guitar_scale.domain.id.ScaleItemId;
 import jakarta.persistence.*;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.guitar_scale.domain;
+package com.guitar_scale.domain.id;
 
 import lombok.Data;
 

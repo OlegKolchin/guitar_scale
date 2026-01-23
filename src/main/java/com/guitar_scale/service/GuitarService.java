@@ -16,23 +16,15 @@ public class GuitarService {
     private static final Logger logger = LoggerFactory.getLogger(GuitarService.class);
 
     private final BasicNoteRepository basicNoteRepository;
-    private final TuningRepository tuningRepository;
-    private final ScaleRepository scaleRepository;
     private final DefaultSettingsRepository defaultSettingsRepository;
     private final ScalePatternRepository scalePatternRepository;
-//    private final NotesRepository notesRepository;
-//    private final ScaleRepository scaleRepository;
-//    private final TuneRepository tuneRepository;
+    private final TuningItemRepository tuningItemRepository;
 
-    public GuitarService(BasicNoteRepository basicNoteRepository, TuningRepository tuningRepository, ScaleRepository scaleRepository, DefaultSettingsRepository defaultSettingsRepository, ScalePatternRepository scalePatternRepository) {
+    public GuitarService(BasicNoteRepository basicNoteRepository, DefaultSettingsRepository defaultSettingsRepository, ScalePatternRepository scalePatternRepository, TuningItemRepository tuningItemRepository) {
         this.basicNoteRepository = basicNoteRepository;
-//        this.notesRepository = notesRepository;
-//        this.scaleRepository = scaleRepository;
-//        this.tuneRepository = tuneRepository;
-        this.tuningRepository = tuningRepository;
-        this.scaleRepository = scaleRepository;
         this.defaultSettingsRepository = defaultSettingsRepository;
         this.scalePatternRepository = scalePatternRepository;
+        this.tuningItemRepository = tuningItemRepository;
     }
 
     public List<BasicNote> getAllBasicNotes() {
@@ -45,64 +37,79 @@ public class GuitarService {
         return basicNoteRepository.findById(noteName);
     }
 
-    public List<Tuning> getAllTuning() {
-        List<Tuning> tunings = new ArrayList<>();
-        tuningRepository.findAll().forEach(tunings::add);
-        return tunings;
+
+    public List<TuningItem> getTuningItemByName(String tuningName) {
+        return tuningItemRepository.getTuningItemByTuningNameOrderByStringNo(tuningName);
     }
 
-    public Tuning getTuningByName(String tuningName) {
-        return tuningRepository.findById(tuningName).get();
+    public Map<String, List<TuningItem>> getAllSavedTunings() {
+        List<TuningItem> allTunings = tuningItemRepository.getAllOrdered();
+        return allTunings.stream()
+                .collect(Collectors.groupingBy(TuningItem::getTuningName));
     }
 
-    public void saveTuning(Tuning tuning) {
-        tuningRepository.save(tuning);
-    }
 
-    public List<Scale> getAllScales() {
-        List<Scale> scales = new ArrayList<>();
-        scaleRepository.findAll().forEach(scales::add);
-        return scales;
-    }
-
-    public Scale getScaleByName(String name) {
-        return scaleRepository.findById(name).get();
-    }
-
-    public void saveScale(Scale scale) {
-        scaleRepository.save(scale);
-    }
-
-    public FretBoard getFretBoard(String tuningName) {
-        Tuning tuning = getTuningByName(tuningName);
-        FretBoard fretBoard = new FretBoard();
+    public FretBoard getFretBoardNew(String tuningName) {
+        List<TuningItem> tuning = getTuningItemByName(tuningName);
+        FretBoard fretBoard =  new FretBoard();
         HashMap<Integer, List<Fret>>  frets = new HashMap<>();
-        fretBoard.setTuning(tuning);
 
-        List<BasicNote> tuningNotes = new ArrayList<>();
+        List<BasicNote> basicNotes = getAllBasicNotes();
 
-        tuningNotes.add(basicNoteRepository.findById(tuning.getS1()).get());
-        tuningNotes.add(basicNoteRepository.findById(tuning.getS2()).get());
-        tuningNotes.add(basicNoteRepository.findById(tuning.getS3()).get());
-        tuningNotes.add(basicNoteRepository.findById(tuning.getS4()).get());
-        tuningNotes.add(basicNoteRepository.findById(tuning.getS5()).get());
-        tuningNotes.add(basicNoteRepository.findById(tuning.getS6()).get());
-
-        if (tuning.getS7() != null) {
-            tuningNotes.add(basicNoteRepository.findById(tuning.getS7()).get());
+        for (int i = 0; i < tuning.size(); i++) {
+            int openStringNoteBasicPos = getBasicNoteByName(tuning.get(i).getNoteName()).get().getBasicPos();
+            List<Fret> tunedString = tuneStringNew(tuning.get(i), openStringNoteBasicPos, basicNotes);
+            frets.put(i + 1, tunedString);
         }
 
-        if (tuning.getS8() != null) {
-            tuningNotes.add(basicNoteRepository.findById(tuning.getS8()).get());
-        }
-
-
-        for (int i = 0; i < tuningNotes.size(); i++) {
-            frets.put(i + 1, tuneString(tuningNotes.get(i).getBasicPos(), i + 1));
-        }
         fretBoard.setFrets(frets);
+
         return fretBoard;
     }
+
+    private List<Fret> tuneStringNew(TuningItem openString, Integer openStringNoteBasicPos, List<BasicNote> basicNotes) {
+        List<Fret> tunedString = new ArrayList<>();
+
+        Fret firstFret = new Fret();
+        firstFret.setStringNo(openString.getStringNo());
+        firstFret.setFretNo(1);
+        BasicNote firstFretNote = new BasicNote();
+        firstFretNote.setNoteName(openStringNoteBasicPos == 12 ? basicNotes.get(0).getNoteName() : basicNotes.get(openStringNoteBasicPos).getNoteName());
+        firstFretNote.setBasicPos(openStringNoteBasicPos == 12 ? basicNotes.get(0).getBasicPos() : basicNotes.get(openStringNoteBasicPos).getBasicPos());
+        firstFretNote.setOctave(openString.getNoteName().equals("B") ? openString.getOctave() + 1 : openString.getOctave());
+        firstFretNote.updateAbsolutePos();
+        firstFret.setNote(firstFretNote);
+        tunedString.add(firstFret);
+
+        int prevNoteBasicPos = firstFretNote.getBasicPos();
+        int currentOctave = firstFretNote.getOctave();
+
+        for (int i = 2; i < 16; i++) {
+            Fret fret = new Fret();
+            fret.setStringNo(openString.getStringNo());
+            fret.setFretNo(i);
+            BasicNote currentNote = new BasicNote();
+
+            if (prevNoteBasicPos == 12) {
+                currentNote.setNoteName(basicNotes.get(0).getNoteName());
+                currentNote.setBasicPos(basicNotes.get(0).getBasicPos());
+                currentNote.setOctave(++currentOctave);
+                currentNote.updateAbsolutePos();
+                prevNoteBasicPos = 1;
+            } else {
+                currentNote.setNoteName(basicNotes.get(prevNoteBasicPos).getNoteName());
+                currentNote.setBasicPos(basicNotes.get(prevNoteBasicPos).getBasicPos());
+                currentNote.setOctave(currentOctave);
+                currentNote.updateAbsolutePos();
+                prevNoteBasicPos++;
+            }
+            fret.setNote(currentNote);
+            tunedString.add(fret);
+        }
+
+        return tunedString;
+    }
+
 
     private List<Fret> tuneString(Integer notePos, Integer stringNo) {
         List<Fret> frets = new ArrayList<>();
