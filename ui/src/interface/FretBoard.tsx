@@ -1,4 +1,3 @@
-import * as React from "react";
 import {Tuning} from "./Tuning";
 import {Fret} from "./Fret";
 

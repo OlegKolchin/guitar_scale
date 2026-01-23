@@ -1,4 +1,3 @@
-import * as React from "react";
 import {BasicNote} from "./BasicNote";
 
 export interface Fret {
