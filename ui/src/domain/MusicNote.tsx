@@ -1,7 +1,15 @@
-import * as React from "react";
-import {Avatar, Grow, Menu, MenuItem, Typography} from "@mui/material";
+// domain/MusicNote.tsx
+
+import React from "react";
+import { Avatar, Grow, Menu, MenuItem, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useDefaultSettings } from "../context/DefaultSettingsContext";
+import {
+    getIntervalSemitones,
+    getIntervalColor,
+    isValidInterval
+} from "../constants/MusicalIntervals";
+import { CONTEXT_MENU_OPTIONS, SubMenu } from "../constants/ContextMenuOptions";
 
 interface MusicNoteProps {
     noteName: string;
@@ -10,11 +18,6 @@ interface MusicNoteProps {
     top: string;
     left: string;
     onClick: () => void;
-}
-
-interface SubMenu {
-    label: string;
-    subOptions: string[];
 }
 
 const StyledAvatar = styled(Avatar)({
@@ -45,54 +48,9 @@ const StyledMenu = styled(Menu)(({ theme }) => ({
         '&.Mui-focusVisible': {
             backgroundColor: 'transparent',
         }
-
     }
 }));
 
-const mainOptions: SubMenu[] = [
-    { label: 'Intervals', subOptions: ['Прима', 'Секунда малая', 'Секунда большая', 'Терция малая', 'Терция большая', 'Кварта', 'Тритон',
-                                       'Квинта', 'Секста малая', 'Секста большая', 'Септима малая',
-                                       'Септима большая', 'Октава', 'Нона малая', 'Нона большая', 'Децима малая', 'Децима большая'] },
-    { label: 'Chords', subOptions: ['Минорное трезвучие', 'Мажорное трезвучие'] },
-    { label: 'Option 3', subOptions: ['Sub Option 5', 'Sub Option 6', 'Sub Option 7', 'Sub Option 9'] },
-];
-
-// const intervalColors: { [key: string]: string } = {
-//     'Терция малая': '#FFCDD2',
-//     'Терция большая': '#F8BBD0',
-//     'Кварта': '#E1BEE7',
-//     'Тритон': '#D1C4E9',
-//     'Квинта': '#C5CAE9',
-//     'Секста малая': '#BBDEFB',
-//     'Секста большая': '#B3E5FC',
-//     'Септима малая': '#B2EBF2',
-//     'Септима большая': '#B2DFDB',
-//     'Октава': '#C8E6C9',
-//     'Нона малая': '#DCEDC8',
-//     'Нона большая': '#F0F4C3',
-//     'Децима малая': '#FFF9C4',
-//     'Децима большая': '#FFECB3'
-// };
-
-const intervalColors: { [key: string]: string } = {
-    'Прима': '#FFEBEE', // Lightest Red
-    'Секунда малая': '#FFCDD2', // Light Red
-    'Секунда большая': '#F8BBD0', // Light Pink
-    'Терция малая': '#F48FB1', // Slightly darker Pink
-    'Терция большая': '#F06292', // Darker Pink
-    'Кварта': '#E1BEE7', // Light Purple
-    'Тритон': '#D1C4E9', // Light Lavender
-    'Квинта': '#C5CAE9', // Light Blue
-    'Секста малая': '#BBDEFB', // Light Sky Blue
-    'Секста большая': '#B3E5FC', // Light Cyan
-    'Септима малая': '#B2EBF2', // Light Aqua
-    'Септима большая': '#B2DFDB', // Light Teal
-    'Октава': '#C8E6C9', // Light Green
-    'Нона малая': '#DCEDC8', // Light Lime Green
-    'Нона большая': '#F0F4C3', // Light Yellow Green
-    'Децима малая': '#FFF9C4', // Light Yellow
-    'Децима большая': '#FFECB3' // Light Orange
-};
 const MusicNote: React.FC<MusicNoteProps> = ({
                                                  noteName,
                                                  noteScalePosition,
@@ -101,9 +59,18 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                                                  left,
                                                  onClick
                                              }) => {
-    const { showScalePosition, hideEmptyScaleNotes, defaultSettings,
-            highlightCoreNote, chordRootNote, intervalDestinationPos,
-            toggleIntervalDestinationPos, intervalRootPos, toggleIntervalRootPos } = useDefaultSettings();
+    const {
+        showScalePosition,
+        hideEmptyScaleNotes,
+        defaultSettings,
+        highlightCoreNote,
+        chordRootNote,
+        intervalDestinationPos,
+        toggleIntervalDestinationPos,
+        intervalRootPos,
+        toggleIntervalRootPos
+    } = useDefaultSettings();
+
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [subMenuAnchorEl, setSubMenuAnchorEl] = React.useState<null | HTMLElement>(null);
     const [currentSubOptions, setCurrentSubOptions] = React.useState<string[]>([]);
@@ -111,12 +78,12 @@ const MusicNote: React.FC<MusicNoteProps> = ({
     const open = Boolean(anchorEl);
 
     const handleRightClick = (event: React.MouseEvent<HTMLElement>) => {
-        event.preventDefault(); // Prevent the default context menu
-        setAnchorEl(event.currentTarget); // Set the anchor element for the menu
+        event.preventDefault();
+        setAnchorEl(event.currentTarget);
     };
 
     const handleClose = () => {
-        setAnchorEl(null); // Close the menu
+        setAnchorEl(null);
         setSubMenuAnchorEl(null);
         setActiveMainOption(null);
     };
@@ -126,108 +93,87 @@ const MusicNote: React.FC<MusicNoteProps> = ({
             setSubMenuAnchorEl(null);
             setActiveMainOption(null);
         } else {
-            setSubMenuAnchorEl(anchorEl); // Set to the same anchor as the main menu
+            setSubMenuAnchorEl(anchorEl);
             setCurrentSubOptions(option.subOptions);
             setActiveMainOption(option.label);
         }
     };
 
+    // ========================================================================
+    // REFACTORED: Clean interval handling
+    // ========================================================================
     const handleSubMenuClick = (subOption: string) => {
         console.log(`Param Name: ${activeMainOption}`);
         console.log(`Param Value: ${subOption}`);
         console.log(`Note Name: ${noteName}`);
         console.log(`Absolute Position: ${absolutePosition}`);
 
-        // Add your custom logic here
         if (activeMainOption === 'Intervals') {
-            if ('Прима' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Секунда малая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 1)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Секунда большая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 2)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Терция малая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 3)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Терция большая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 4)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Кварта' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 5)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Тритон' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 6)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Квинта' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 7)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Секста малая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 8)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Секста большая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 9)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Септима малая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 10)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Септима большая' === subOption) {
-                    toggleIntervalDestinationPos(absolutePosition + 11)
-                    toggleIntervalRootPos(absolutePosition);
-            } else if ('Октава' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 12)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Нона малая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 13)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Нона большая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 14)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Децима малая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 15)
-                toggleIntervalRootPos(absolutePosition);
-            } else if ('Децима большая' === subOption) {
-                toggleIntervalDestinationPos(absolutePosition + 16)
-                toggleIntervalRootPos(absolutePosition);
-            }
+            handleIntervalSelection(subOption);
         } else if (activeMainOption === 'Chords') {
-            // Handle chords logic
+            handleChordSelection(subOption);
         } else {
             // Handle other options
         }
+
         handleClose();
     };
 
+    /**
+     * Handle interval selection using data structure
+     */
+    const handleIntervalSelection = (intervalName: string) => {
+        const semitones = getIntervalSemitones(intervalName);
+
+        if (semitones !== undefined) {
+            toggleIntervalRootPos(absolutePosition);
+            toggleIntervalDestinationPos(absolutePosition + semitones);
+        } else {
+            console.warn(`Unknown interval: ${intervalName}`);
+        }
+    };
+
+    /**
+     * Handle chord selection (placeholder for future implementation)
+     */
+    const handleChordSelection = (chordName: string) => {
+        // TODO: Implement chord logic
+        console.log(`Chord selected: ${chordName}`);
+    };
+
+    // Early return if note should be hidden
     if (hideEmptyScaleNotes && noteScalePosition === '') {
         return null;
     }
 
+    // ========================================================================
+    // Styling logic
+    // ========================================================================
+
     const noteNameStyle =
-            (highlightCoreNote && noteName == defaultSettings.coreNoteName)
+        (highlightCoreNote && noteName === defaultSettings.coreNoteName)
             ? { color: 'white', fontWeight: 'bold' }
             : noteName === chordRootNote
-            ? { color: '#755139FF', fontWeight: 'bold' }
-            : { color: 'black', fontWeight: 'bold' };
+                ? { color: '#755139FF', fontWeight: 'bold' }
+                : { color: 'black', fontWeight: 'bold' };
 
     const noteScalePositionStyle =
-            (highlightCoreNote && noteName == defaultSettings.coreNoteName)
-            ? { color: 'white', fontWeight: 'bolder', }
+        (highlightCoreNote && noteName === defaultSettings.coreNoteName)
+            ? { color: 'white', fontWeight: 'bolder' }
             : noteName === chordRootNote
-            ? { color: '#755139FF', fontWeight: 'bolder', }
-            : { color: 'green', fontWeight: 'bolder', };
+                ? { color: '#755139FF', fontWeight: 'bolder' }
+                : { color: 'green', fontWeight: 'bolder' };
 
     const noteColor =
-            absolutePosition === intervalDestinationPos
+        absolutePosition === intervalDestinationPos
             ? '#3cee98'
             : absolutePosition === intervalRootPos
-            ? '#3ceedf'
-            : highlightCoreNote && noteName === defaultSettings.coreNoteName
-            ? '#CBCE91FF'
-            : noteName === chordRootNote
-            ? '#F2EDD7FF'
-            : 'rgb(224,218,223)'
+                ? '#3ceedf'
+                : highlightCoreNote && noteName === defaultSettings.coreNoteName
+                    ? '#CBCE91FF'
+                    : noteName === chordRootNote
+                        ? '#F2EDD7FF'
+                        : 'rgb(224,218,223)';
 
     const avatarContent = showScalePosition ? (
         <React.Fragment>
@@ -256,6 +202,7 @@ const MusicNote: React.FC<MusicNoteProps> = ({
             >
                 {avatarContent}
             </StyledAvatar>
+
             <StyledMenu
                 anchorEl={anchorEl}
                 open={open}
@@ -265,7 +212,7 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                 }}
                 TransitionComponent={Grow}
             >
-                {mainOptions.map((option) => (
+                {CONTEXT_MENU_OPTIONS.map((option) => (
                     <MenuItem
                         key={option.label}
                         onClick={(event) => handleMainMenuClick(event, option)}
@@ -292,10 +239,13 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                             }}
                         >
                             {currentSubOptions.map((subOption) => (
-                                <MenuItem key={subOption} onClick={() => handleSubMenuClick(subOption)}
-                                          sx={{
-                                              backgroundColor: intervalColors[subOption] || 'inherit',
-                                          }}>
+                                <MenuItem
+                                    key={subOption}
+                                    onClick={() => handleSubMenuClick(subOption)}
+                                    sx={{
+                                        backgroundColor: getIntervalColor(subOption),
+                                    }}
+                                >
                                     <Typography variant="inherit">{subOption}</Typography>
                                 </MenuItem>
                             ))}
