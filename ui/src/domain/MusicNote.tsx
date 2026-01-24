@@ -10,6 +10,7 @@ import {
     isValidInterval
 } from "../constants/MusicalIntervals";
 import { CONTEXT_MENU_OPTIONS, SubMenu } from "../constants/ContextMenuOptions";
+import { NOTE_DISPLAY } from "../constants/FretboardLayout";
 
 interface MusicNoteProps {
     noteName: string;
@@ -23,15 +24,15 @@ interface MusicNoteProps {
 const StyledAvatar = styled(Avatar)({
     backgroundColor: 'rgb(224,218,223)',
     color: 'white',
-    width: 'min(2vw, 2vh)',
-    height: 'min(2vw, 2vh)',
-    fontSize: 'clamp(7px, 1.1vw, 10px)',
-    minWidth: '19px',
-    minHeight: '19px',
-    maxWidth: '24px',
-    maxHeight: '24px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.19)',
+    width: NOTE_DISPLAY.SIZE_RESPONSIVE,
+    height: NOTE_DISPLAY.SIZE_RESPONSIVE,
+    fontSize: NOTE_DISPLAY.FONT_SIZE_RESPONSIVE,
+    minWidth: `${NOTE_DISPLAY.MIN_SIZE_PX}px`,
+    minHeight: `${NOTE_DISPLAY.MIN_SIZE_PX}px`,
+    maxWidth: `${NOTE_DISPLAY.MAX_SIZE_PX}px`,
+    maxHeight: `${NOTE_DISPLAY.MAX_SIZE_PX}px`,
+    border: `${NOTE_DISPLAY.BORDER_WIDTH_PX}px solid ${NOTE_DISPLAY.BORDER_COLOR}`,
+    boxShadow: NOTE_DISPLAY.BOX_SHADOW,
 });
 
 const StyledMenu = styled(Menu)(({ theme }) => ({

@@ -16,6 +16,12 @@ import {
     calculateFretDotPosition,
     calculateOpenStringPosition
 } from "../utils/FretboardCalculations";
+import {
+    FRETBOARD_LAYOUT,
+    STANDARD_FRET_MARKERS,
+    getFretDotOffset,
+    getNoteVerticalOffset
+} from "../constants/FretboardLayout";
 
 export default function GuitarFretboard() {
 
@@ -39,12 +45,15 @@ export default function GuitarFretboard() {
     }
 
     console.log("tuning is : " + tuning);
+
+    // Use constants instead of magic numbers
     const defNumberOfStrings = tuning!.length;
+    const numberOfFrets = FRETBOARD_LAYOUT.DEFAULT_NUMBER_OF_FRETS;
+    const stringOffset = FRETBOARD_LAYOUT.STRING_OFFSET_PERCENT;
+    const dotFrets = [...STANDARD_FRET_MARKERS];
+    const dotOffset = getFretDotOffset();
+
     console.log("defaultNumber of str:" + defNumberOfStrings);
-    const numberOfFrets = 15;
-    const stringOffset = 6.6;
-    const dotFrets = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-    const dotOffset = stringOffset + 5;
 
     const calculatedScalePosition = (scale: ScaleItem[], noteName: string): string => {
         const rsl = scale.find(scaleItem => scaleItem.noteName === noteName);
@@ -59,7 +68,7 @@ export default function GuitarFretboard() {
 
     return (
         <GuitarNeck numberOfStrings={defNumberOfStrings}>
-            <Box sx={{ marginLeft: '9.5px' }} />
+            <Box sx={{ marginLeft: `${FRETBOARD_LAYOUT.INITIAL_LEFT_MARGIN_PX}px` }} />
 
             {/* Render Frets */}
             {Array.from({ length: numberOfFrets }).map((_, index) => (

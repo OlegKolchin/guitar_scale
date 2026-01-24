@@ -1,41 +1,43 @@
+// module/GuitarNeck.tsx
+
 import React from 'react';
 import Box from '@mui/material/Box';
 import woodTexture from '../assets/material/wooden-textured-background.jpg';
 import lightWoodTexture from '../assets/material/natural-wooden-background.jpg';
+import { GUITAR_NECK, calculateNeckHeight } from '../constants/FretboardLayout';
 
 interface GuitarNeckProps {
     children?: React.ReactNode;
     numberOfStrings?: number;
 }
 
-const GuitarNeck: React.FC<GuitarNeckProps> = ({ children, numberOfStrings = 6 }) =>  {
-    const heightBasedOnStrings = `${numberOfStrings * 3.7}vh`;
+const GuitarNeck: React.FC<GuitarNeckProps> = ({ children, numberOfStrings = 6 }) => {
+    const heightBasedOnStrings = calculateNeckHeight(numberOfStrings);
 
     return (
         <Box
             sx={{
                 width: {
-                    xs: '90%', // Full width on extra-small screens
-                    sm: '75%', // 75% width starting from small screens
-                    md: '75%', // 50% width starting from medium screens
-                    lg: '70%',
-                    xl: '60%'
-                    // xxl: '70'
+                    xs: GUITAR_NECK.WIDTH.XS,
+                    sm: GUITAR_NECK.WIDTH.SM,
+                    md: GUITAR_NECK.WIDTH.MD,
+                    lg: GUITAR_NECK.WIDTH.LG,
+                    xl: GUITAR_NECK.WIDTH.XL,
                 },
-                '@media (min-width:2000px)': {
-                    width: '50%', // Custom style for ultra-wide screens (above 2000px)
+                [`@media (min-width:${GUITAR_NECK.ULTRA_WIDE_BREAKPOINT_PX}px)`]: {
+                    width: GUITAR_NECK.WIDTH.XXL,
                 },
                 height: heightBasedOnStrings,
                 position: 'relative',
                 // backgroundImage: `url(${woodTexture})`,
                 // backgroundImage: `url(${lightWoodTexture})`,
-                backgroundColor:'salmon',
+                backgroundColor: GUITAR_NECK.BACKGROUND_COLOR,
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                borderRadius: `${GUITAR_NECK.BORDER_RADIUS_PX}px`,
+                boxShadow: GUITAR_NECK.BOX_SHADOW,
                 margin: 'auto',
-                marginTop: '100px',
+                marginTop: `${GUITAR_NECK.TOP_MARGIN_PX}px`,
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
