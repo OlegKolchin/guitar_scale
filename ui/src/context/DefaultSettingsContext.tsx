@@ -6,6 +6,8 @@ import { DefaultSettings } from '../interface/DefaultSettings';
 import { TuningItem } from '../interface/TuningItem';
 import { ScaleItem } from '../interface/ScaleItem';
 import { FretBoard } from '../interface/FretBoard';
+import {ChordPattern} from "../interface/ChordPattern";
+import {BasicNote} from "../interface/BasicNote";
 
 // ============================================================================
 // CONTEXT INTERFACE
@@ -25,6 +27,11 @@ interface DefaultSettingsContextType {
     // FretBoard State
     fretBoard: FretBoard | null;
     isFretBoardLoading: boolean;
+
+    //Chord
+    chordPatterns: ChordPattern[];
+    isChordPatternsLoading: boolean;
+    selectedChordNotes: number[];
 
     // Scale State
     scale: ScaleItem[] | null;
@@ -54,6 +61,7 @@ interface DefaultSettingsContextType {
     toggleShowChordSequence: () => void;
     toggleIntervalDestinationPos: (absolutePos: number) => void;
     toggleIntervalRootPos: (absolutePos: number) => void;
+    toggleChordSelection: (absolutePos: number, patternName: string) => void;
 }
 
 interface Props {
@@ -122,6 +130,12 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const [intervalDestinationPos, setIntervalDestinationPos] = useState(0);
     const [intervalRootPos, setIntervalRootPos] = useState(0);
 
+    // Chords
+
+    const [chordPatterns, setChordPatterns] = useState<ChordPattern[]>([]);
+    const [isChordPatternsLoading, setIsChordPatternsLoading] = useState(false);
+    const [selectedChordNotes, setSelectedChordNotes] = useState<number[]>([]);
+
     // ------------------------------------------------------------------------
     // TOGGLE FUNCTIONS (Actions)
     // ------------------------------------------------------------------------
@@ -180,6 +194,32 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         setIntervalRootPos(absolutePos);
     };
 
+    const toggleChordSelection = async (
+        absolutePosition: number,
+        patternName: string
+    ) => {
+        try {
+
+            if (absolutePosition == 0) {
+                setSelectedChordNotes([]);
+                return;
+            }
+
+            const tuningName = tuning?.[0]?.tuningName || 'Standard';
+            const chordNotes = await guitarApi.getChordNotes(
+                absolutePosition,
+                patternName,
+                tuningName
+            );
+
+            // Extract absolute positions
+            const positions = chordNotes.map(note => note.absolutePos);
+            setSelectedChordNotes(positions);
+        } catch (error) {
+            console.error('Failed to fetch chord notes:', error);
+        }
+    };
+
     // ------------------------------------------------------------------------
     // API WRAPPER FUNCTIONS
     // ------------------------------------------------------------------------
@@ -218,6 +258,19 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         }
     };
 
+    const fetchChordPatterns = async () => {
+        setIsChordPatternsLoading(true);
+        try {
+            const patterns = await guitarApi.getAllChordPatterns();
+            setChordPatterns(patterns);
+        } catch (error) {
+            console.error('Failed to fetch chord patterns:', error);
+        } finally {
+            setIsChordPatternsLoading(false);
+        }
+    };
+
+
     // ------------------------------------------------------------------------
     // EFFECTS
     // ------------------------------------------------------------------------
@@ -248,6 +301,9 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
                     settingsData.patternName
                 );
                 setScale(scaleData);
+
+                const chordData = await guitarApi.getAllChordPatterns();
+                setChordPatterns(chordData);
 
             } catch (error) {
                 console.error('Error loading initial data:', error);
@@ -286,6 +342,10 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         }
     }, [tuning]);
 
+    useEffect(() => {
+        fetchChordPatterns();
+    }, []);
+
     // ------------------------------------------------------------------------
     // CONTEXT VALUE
     // ------------------------------------------------------------------------
@@ -309,6 +369,10 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         highlightCoreNote,
         intervalDestinationPos,
         intervalRootPos,
+        chordPatterns,
+        isChordPatternsLoading,
+        selectedChordNotes,
+
 
         // Actions
         toggleChordRootNote,
@@ -320,7 +384,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         toggleHighlightCoreNote,
         toggleShowChordSequence,
         toggleIntervalDestinationPos,
-        toggleIntervalRootPos
+        toggleIntervalRootPos,
+        toggleChordSelection
     };
 
     return (

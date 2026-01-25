@@ -1,5 +1,3 @@
-// domain/MusicNote.tsx
-
 import React from "react";
 import { Avatar, Grow, Menu, MenuItem, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -9,7 +7,8 @@ import {
     getIntervalColor,
     isValidInterval
 } from "../constants/MusicalIntervals";
-import { CONTEXT_MENU_OPTIONS, SubMenu } from "../constants/ContextMenuOptions";
+import {getChordColor} from "../constants/ChordColors";
+import {CONTEXT_MENU_OPTIONS, createContextMenuOptions, SubMenu} from "../constants/ContextMenuOptions";
 import { NOTE_DISPLAY } from "../constants/FretboardLayout";
 
 interface MusicNoteProps {
@@ -67,9 +66,11 @@ const MusicNote: React.FC<MusicNoteProps> = ({
         highlightCoreNote,
         chordRootNote,
         intervalDestinationPos,
+        selectedChordNotes,
         toggleIntervalDestinationPos,
         intervalRootPos,
-        toggleIntervalRootPos
+        toggleIntervalRootPos,
+        toggleChordSelection
     } = useDefaultSettings();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -112,7 +113,7 @@ const MusicNote: React.FC<MusicNoteProps> = ({
         if (activeMainOption === 'Intervals') {
             handleIntervalSelection(subOption);
         } else if (activeMainOption === 'Chords') {
-            handleChordSelection(subOption);
+            handleChordSelection(absolutePosition, subOption);
         } else {
             // Handle other options
         }
@@ -137,9 +138,18 @@ const MusicNote: React.FC<MusicNoteProps> = ({
     /**
      * Handle chord selection (placeholder for future implementation)
      */
-    const handleChordSelection = (chordName: string) => {
+    const handleChordSelection = ( absoluteNotePosition: number, chordName: string) => {
         // TODO: Implement chord logic
+        toggleChordSelection(absoluteNotePosition, chordName);
         console.log(`Chord selected: ${chordName}`);
+    };
+
+    const isNoteInChord = (absolutePosition: number): boolean => {
+
+        for (const num of selectedChordNotes) {
+            if (num === absolutePosition) return true;
+        }
+        return false;
     };
 
     // Early return if note should be hidden
@@ -168,13 +178,17 @@ const MusicNote: React.FC<MusicNoteProps> = ({
     const noteColor =
         absolutePosition === intervalDestinationPos
             ? '#3cee98'
-            : absolutePosition === intervalRootPos
-                ? '#3ceedf'
-                : highlightCoreNote && noteName === defaultSettings.coreNoteName
-                    ? '#CBCE91FF'
-                    : noteName === chordRootNote
-                        ? '#F2EDD7FF'
-                        : 'rgb(224,218,223)';
+            : isNoteInChord(absolutePosition)
+                ? '#9dbbff'
+                    : absolutePosition === intervalRootPos
+                        ? '#3ceedf'
+                            : highlightCoreNote && noteName === defaultSettings.coreNoteName
+                                ? '#CBCE91FF'
+                                : noteName === chordRootNote
+                                    ? '#F2EDD7FF'
+                                    : 'rgb(224,218,223)';
+
+    //fccbeb
 
     const avatarContent = showScalePosition ? (
         <React.Fragment>
@@ -244,7 +258,9 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                                     key={subOption}
                                     onClick={() => handleSubMenuClick(subOption)}
                                     sx={{
-                                        backgroundColor: getIntervalColor(subOption),
+                                        backgroundColor: activeMainOption === 'Intervals'
+                                            ?getIntervalColor(subOption)
+                                            :getChordColor(subOption)
                                     }}
                                 >
                                     <Typography variant="inherit">{subOption}</Typography>
@@ -257,5 +273,11 @@ const MusicNote: React.FC<MusicNoteProps> = ({
         </React.Fragment>
     );
 };
+
+// sx={{
+//     backgroundColor: someCondition
+//         ? getIntervalColor(subOption)
+//         : 'transparent',
+// }}
 
 export default MusicNote;

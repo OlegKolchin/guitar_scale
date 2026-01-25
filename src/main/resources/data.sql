@@ -130,29 +130,28 @@ INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Tri
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Triad', 'WH-WW', 'm');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Diminished Triad', 'WH-WH', 'dim');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Augmented Triad', 'WW-WW', '+');
-
--- Seventh Chords
+--Seventh Chords
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Seventh Chord', 'WW-WH-WW', 'Maj7');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Dominant Seventh Chord', 'WW-WH-WH', '7');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Seventh Chord', 'WH-WW-WH', 'm7');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Half-Diminished Seventh Chord', 'WH-WH-WH', 'm7b5');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Fully Diminished Seventh Chord', 'WH-WH-WH', 'dim7');
-
--- Ninth Chords
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Dominant Ninth Chord', 'WW-WH-WH-WW', '9');
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Ninth Chord', 'WW-WH-WW-WW', 'Maj9');
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Ninth Chord', 'WH-WW-WH-WW', 'm9');
-
--- Eleventh Chords
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Dominant Eleventh Chord', 'WW-WH-WH-WW-WH', '11');
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Eleventh Chord', 'WW-WH-WW-WW-WH', 'Maj11');
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Eleventh Chord', 'WH-WW-WH-WW-WH', 'm11');
-
--- Thirteenth Chords
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Dominant Thirteenth Chord', 'WW-WH-WH-WW-WH-WW', '13');
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Thirteenth Chord', 'WW-WH-WW-WW-WH-WW', 'Maj13');
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Thirteenth Chord', 'WH-WW-WH-WW-WH-WW', 'm13');
-
+--
+-- -- Ninth Chords
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Dominant Ninth Chord', 'WW-WH-WH-WW', '9');
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Ninth Chord', 'WW-WH-WW-WW', 'Maj9');
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Ninth Chord', 'WH-WW-WH-WW', 'm9');
+--
+-- -- Eleventh Chords
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Dominant Eleventh Chord', 'WW-WH-WH-WW-WH', '11');
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Eleventh Chord', 'WW-WH-WW-WW-WH', 'Maj11');
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Eleventh Chord', 'WH-WW-WH-WW-WH', 'm11');
+--
+-- -- Thirteenth Chords
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Dominant Thirteenth Chord', 'WW-WH-WH-WW-WH-WW', '13');
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Thirteenth Chord', 'WW-WH-WW-WW-WH-WW', 'Maj13');
+-- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Thirteenth Chord', 'WH-WW-WH-WW-WH-WW', 'm13');
+--
 -- Suspended Chords
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Suspended Second Chord', 'W-WW', 'sus2');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Suspended Fourth Chord', 'WH-W', 'sus4');

@@ -15,7 +15,9 @@ function App() {
         isTuningLoading,
         isFretBoardLoading,
         toggleIntervalRootPos,
-        toggleIntervalDestinationPos
+        toggleIntervalDestinationPos,
+        toggleChordRootNote,
+        toggleChordSelection
     } = useDefaultSettings();
 
     // Global Ctrl+Click handler to reset interval colors
@@ -29,6 +31,8 @@ function App() {
                 // -1 means "no interval selected"
                 toggleIntervalRootPos(-1);
                 toggleIntervalDestinationPos(-1);
+                toggleChordRootNote('');
+                toggleChordSelection(0, '');
             }
         };
 

@@ -2,6 +2,8 @@ import {DefaultSettings} from "../interface/DefaultSettings";
 import {FretBoard} from "../interface/FretBoard";
 import {ScaleItem} from "../interface/ScaleItem";
 import {TuningItem} from "../interface/TuningItem";
+import {ChordPattern} from "../interface/ChordPattern";
+import {BasicNote} from "../interface/BasicNote";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -89,6 +91,47 @@ class GuitarApiService {
         );
         if (!response.ok) {
             throw new Error('Failed to fetch chord scale');
+        }
+        return await response.json();
+    }
+
+    // ------------------------------------------------------------------------
+// CHORD ENDPOINTS
+// ------------------------------------------------------------------------
+
+    async getAllChordPatterns(): Promise<ChordPattern[]> {
+        const response = await fetch(
+            `${API_BASE_URL}/chords`
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch chordPatterns');
+        }
+        return await response.json();
+    }
+
+    async getChordPatternByName(chordName: string): Promise<ChordPattern> {
+        const response = await fetch(
+            `${API_BASE_URL}/chords?chordName=${encodeURIComponent(chordName)}`
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch chordPattern');
+        }
+        return await response.json();
+    }
+
+    async getChordNotes(
+        rootNoteAbsolutePosition: number,
+        patternName: string,
+        currentTuningName: string
+    ): Promise<BasicNote[]> {
+        const response = await fetch(
+            `${API_BASE_URL}/chords/chordNotes?rootNoteAbsolutePosition=${encodeURIComponent(rootNoteAbsolutePosition)}&patternName=${encodeURIComponent(patternName)}&currentTuningName=${encodeURIComponent(currentTuningName)}`
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch chordNotes');
         }
         return await response.json();
     }

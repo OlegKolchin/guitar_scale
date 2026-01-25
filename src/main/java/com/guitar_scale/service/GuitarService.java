@@ -19,12 +19,14 @@ public class GuitarService {
     private final DefaultSettingsRepository defaultSettingsRepository;
     private final ScalePatternRepository scalePatternRepository;
     private final TuningItemRepository tuningItemRepository;
+    private final ChordPatternRepository chordPatternRepository;
 
-    public GuitarService(BasicNoteRepository basicNoteRepository, DefaultSettingsRepository defaultSettingsRepository, ScalePatternRepository scalePatternRepository, TuningItemRepository tuningItemRepository) {
+    public GuitarService(BasicNoteRepository basicNoteRepository, DefaultSettingsRepository defaultSettingsRepository, ScalePatternRepository scalePatternRepository, TuningItemRepository tuningItemRepository, ChordPatternRepository chordPatternRepository) {
         this.basicNoteRepository = basicNoteRepository;
         this.defaultSettingsRepository = defaultSettingsRepository;
         this.scalePatternRepository = scalePatternRepository;
         this.tuningItemRepository = tuningItemRepository;
+        this.chordPatternRepository = chordPatternRepository;
     }
 
     public List<BasicNote> getAllBasicNotes() {
@@ -65,6 +67,21 @@ public class GuitarService {
         fretBoard.setFrets(frets);
 
         return fretBoard;
+    }
+
+    private BasicNote getBasicNoteByAbsolutePosition(FretBoard fretBoard, int position) {
+        fretBoard.getFrets();
+        for (int i = 1; i <= fretBoard.getFrets().size(); i++) {
+            for (int j = 0; j < fretBoard.getFrets().get(i).size(); j++) {
+                BasicNote note = fretBoard.getFrets().get(i).get(j).getNote();
+                if (note.getAbsolutePos() == position) {
+                    return note;
+                }
+            }
+        }
+
+        return null;
+
     }
 
     private List<Fret> tuneStringNew(TuningItem openString, Integer openStringNoteBasicPos, List<BasicNote> basicNotes) {
@@ -195,6 +212,66 @@ public class GuitarService {
                 rsl.add(item);
             }
         }
+
+        return rsl;
+    }
+
+    public List<ChordPattern> getAllChordPatterns() {
+        List<ChordPattern> rsl;
+        rsl =chordPatternRepository.getAllOrdered();
+        return rsl;
+    }
+
+    public ChordPattern getChordPatternByName(String name) {
+        return chordPatternRepository.findById(name).get();
+    }
+
+    public List<BasicNote> calculateChordNotes(int noteAbsolutePosition, String patternName, String currentTuningName) {
+        ChordPattern chordPattern = getChordPatternByName(patternName);
+        List<BasicNote> rsl = new ArrayList<>();
+
+
+        String pattern = chordPattern.getPattern();
+        String[] patternIntervalsArray = pattern.split("-");
+
+        FretBoard fretBoard = getFretBoardNew(currentTuningName);
+
+        List<Fret> firstString = fretBoard.getFrets().get(1);
+        List<Fret> lowestString = fretBoard.getFrets().get(fretBoard.getFrets().size());
+
+        int lowestAbsolutePosition = lowestString.get(0).getNote().getAbsolutePos();
+        int highestAbsolutePosition = firstString.get(14).getNote().getAbsolutePos();
+
+        BasicNote coreChordNote = getBasicNoteByAbsolutePosition(fretBoard, noteAbsolutePosition);
+        rsl.add(coreChordNote);
+
+        BasicNote prevChordNote = coreChordNote;
+        for (String interval : patternIntervalsArray) {
+
+            int positionIncrement = 0;
+
+            if ("W".equals(interval)) {
+                positionIncrement = 2;
+            } else if ("WH".equals(interval)) {
+                positionIncrement = 3;
+            } else if ("WW".equals(interval)) {
+                positionIncrement = 4;
+            }
+
+            int calculatedAbsolutePosition = prevChordNote.getAbsolutePos() + positionIncrement;
+
+            if (calculatedAbsolutePosition < lowestAbsolutePosition ||  calculatedAbsolutePosition > highestAbsolutePosition) {
+                continue;
+            }
+
+            BasicNote chordNote = getBasicNoteByAbsolutePosition(fretBoard, prevChordNote.getAbsolutePos()+ positionIncrement);
+            rsl.add(chordNote);
+
+            prevChordNote = chordNote;
+        }
+
+
+
 
         return rsl;
     }
