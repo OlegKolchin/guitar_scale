@@ -6,8 +6,9 @@ import { DefaultSettings } from '../interface/DefaultSettings';
 import { TuningItem } from '../interface/TuningItem';
 import { ScaleItem } from '../interface/ScaleItem';
 import { FretBoard } from '../interface/FretBoard';
-import {ChordPattern} from "../interface/ChordPattern";
-import {BasicNote} from "../interface/BasicNote";
+import { ChordPattern } from "../interface/ChordPattern";
+import { BasicNote } from "../interface/BasicNote";
+import { Language } from '../constants/Translations';
 
 // ============================================================================
 // CONTEXT INTERFACE
@@ -28,7 +29,7 @@ interface DefaultSettingsContextType {
     fretBoard: FretBoard | null;
     isFretBoardLoading: boolean;
 
-    //Chord
+    // Chord
     chordPatterns: ChordPattern[];
     isChordPatternsLoading: boolean;
     selectedChordNotes: number[];
@@ -50,6 +51,9 @@ interface DefaultSettingsContextType {
     intervalDestinationPos: number;
     intervalRootPos: number;
 
+    // Language State
+    language: Language;
+
     // Actions
     toggleChordRootNote: (noteName: string) => void;
     toggleShowScalePosition: () => void;
@@ -62,6 +66,7 @@ interface DefaultSettingsContextType {
     toggleIntervalDestinationPos: (absolutePos: number) => void;
     toggleIntervalRootPos: (absolutePos: number) => void;
     toggleChordSelection: (absolutePos: number, patternName: string) => void;
+    toggleLanguage: () => void;
 }
 
 interface Props {
@@ -131,10 +136,12 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const [intervalRootPos, setIntervalRootPos] = useState(0);
 
     // Chords
-
     const [chordPatterns, setChordPatterns] = useState<ChordPattern[]>([]);
     const [isChordPatternsLoading, setIsChordPatternsLoading] = useState(false);
     const [selectedChordNotes, setSelectedChordNotes] = useState<number[]>([]);
+
+    // Language State
+    const [language, setLanguage] = useState<Language>('ru');  // Default: Russian
 
     // ------------------------------------------------------------------------
     // TOGGLE FUNCTIONS (Actions)
@@ -199,7 +206,6 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         patternName: string
     ) => {
         try {
-
             if (absolutePosition == 0) {
                 setSelectedChordNotes([]);
                 return;
@@ -218,6 +224,11 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         } catch (error) {
             console.error('Failed to fetch chord notes:', error);
         }
+    };
+
+    // Language Toggle
+    const toggleLanguage = () => {
+        setLanguage(prev => prev === 'en' ? 'ru' : 'en');
     };
 
     // ------------------------------------------------------------------------
@@ -269,7 +280,6 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
             setIsChordPatternsLoading(false);
         }
     };
-
 
     // ------------------------------------------------------------------------
     // EFFECTS
@@ -372,7 +382,7 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         chordPatterns,
         isChordPatternsLoading,
         selectedChordNotes,
-
+        language,
 
         // Actions
         toggleChordRootNote,
@@ -385,7 +395,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         toggleShowChordSequence,
         toggleIntervalDestinationPos,
         toggleIntervalRootPos,
-        toggleChordSelection
+        toggleChordSelection,
+        toggleLanguage
     };
 
     return (

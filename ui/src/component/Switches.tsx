@@ -4,7 +4,8 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch, { SwitchProps } from '@mui/material/Switch';
 import Stack from '@mui/material/Stack';
-import {useDefaultSettings} from "../context/DefaultSettingsContext";
+import { getUIText } from '../constants/Translations';
+import { useDefaultSettings } from "../context/DefaultSettingsContext";
 
 const IOSSwitch = styled((props: SwitchProps) => (
     <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -57,8 +58,6 @@ const IOSSwitch = styled((props: SwitchProps) => (
     },
 }));
 
-
-
 export default function CustomizedSwitches() {
     const {
         toggleShowScalePosition,
@@ -69,36 +68,35 @@ export default function CustomizedSwitches() {
         hideEmptyScaleNotes,
         highlightCoreNote,
         showChordSequence,
+        language
     } = useDefaultSettings();
 
     return (
         <Stack direction="row" justifyContent="center" alignItems="center" sx={{ width: '100%', height: '35vh' }}>
             <FormGroup>
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1 }} />}
-                    label="Отображать только ноты гаммы"
+                    control={<IOSSwitch sx={{ m: 1 }} checked={hideEmptyScaleNotes} />}
+                    label={getUIText('switches', 'show_scale_notes', language)}
                     onChange={toggleHideEmptyScaleNotes}
-
                 />
+
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1 }} />}
-                    label="Выделить тонику гаммы"
+                    control={<IOSSwitch sx={{ m: 1 }} checked={highlightCoreNote} />}
+                    label={getUIText('switches', 'highlight_tonic', language)}
                     onChange={toggleHighlightCoreNote}
                 />
+
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1 }} />}
-                    label="Отображать ступени гаммы"
+                    control={<IOSSwitch sx={{ m: 1 }} checked={showScalePosition} />}
+                    label={getUIText('switches', 'show_scale_degrees', language)}
                     onChange={toggleShowScalePosition}
                 />
+
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1, ml: 3 }} disabled={!showScalePosition}/>}
-                    label="По клику переключаться на ступени аккорда"
+                    control={<IOSSwitch sx={{ m: 1, ml: 3 }} checked={showChordSequence} disabled={!showScalePosition} />}
+                    label={getUIText('switches', 'chord_mode', language)}
                     onChange={toggleShowChordSequence}
                 />
-                {/*<FormControlLabel*/}
-                {/*    control={<IOSSwitch sx={{ m: 1 }} />}*/}
-                {/*    label="Еще одна кнопка"*/}
-                {/*/>*/}
             </FormGroup>
         </Stack>
     );

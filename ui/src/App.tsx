@@ -8,6 +8,7 @@ import { useDefaultSettings } from './context/DefaultSettingsContext';
 import LoadingElement from "./component/LoadingElement";
 import CustomizedSwitches from "./component/Switches";
 import Footer from "./domain/Footer";
+import LanguageToggle from "./component/LanguageToggle";
 
 function App() {
     const {
@@ -53,6 +54,7 @@ function App() {
 
     return (
         <div className="App">
+            <LanguageToggle />
             <BasicMenu />
             <GuitarFretboard />
             <CustomizedSwitches />
