@@ -1,8 +1,12 @@
+// constants/MusicalIntervals.ts
+
 /**
  * Musical intervals mapped to semitone distances
  * Used for displaying interval relationships on the fretboard
+ * Supports both English and Russian names
  */
 export const INTERVALS = {
+    // ========== RUSSIAN ==========
     'Прима': 0,                    // Unison / Perfect Prime
     'Секунда малая': 1,            // Minor 2nd
     'Секунда большая': 2,          // Major 2nd
@@ -20,10 +24,29 @@ export const INTERVALS = {
     'Нона большая': 14,            // Major 9th
     'Децима малая': 15,            // Minor 10th
     'Децима большая': 16,          // Major 10th
+
+    // ========== ENGLISH  ==========
+    'Unison': 0,
+    'Minor Second': 1,
+    'Major Second': 2,
+    'Minor Third': 3,
+    'Major Third': 4,
+    'Perfect Fourth': 5,
+    'Tritone': 6,
+    'Perfect Fifth': 7,
+    'Minor Sixth': 8,
+    'Major Sixth': 9,
+    'Minor Seventh': 10,
+    'Major Seventh': 11,
+    'Octave': 12,
+    'Minor Ninth': 13,
+    'Major Ninth': 14,
+    'Minor Tenth': 15,
+    'Major Tenth': 16,
 } as const;
 
 /**
- * Type for interval names
+ * Type for interval names (both EN and RU)
  */
 export type IntervalName = keyof typeof INTERVALS;
 
@@ -44,8 +67,9 @@ export const isValidInterval = (intervalName: string): intervalName is IntervalN
 /**
  * Color scheme for visualizing intervals
  * Colors progress through spectrum: red → pink → purple → blue → cyan → teal → green → yellow
+ * Uses Russian names as keys (for backward compatibility)
  */
-export const INTERVAL_COLORS: Record<IntervalName, string> = {
+export const INTERVAL_COLORS: Record<string, string> = {
     'Прима': '#FFEBEE',                // Lightest Red - Unison
     'Секунда малая': '#FFCDD2',        // Light Red - Minor 2nd
     'Секунда большая': '#F8BBD0',      // Light Pink - Major 2nd
@@ -66,8 +90,21 @@ export const INTERVAL_COLORS: Record<IntervalName, string> = {
 };
 
 /**
- * Get color for an interval
+ * Get color for an interval (works with both EN and RU names)
  */
 export const getIntervalColor = (intervalName: string): string => {
-    return INTERVAL_COLORS[intervalName as IntervalName] || 'inherit';
+    // If it's an English name, find the corresponding Russian name
+    const semitones = INTERVALS[intervalName as IntervalName];
+
+    if (semitones !== undefined) {
+        // Find the Russian name with the same semitone value
+        for (const [name, value] of Object.entries(INTERVALS)) {
+            if (value === semitones && INTERVAL_COLORS[name]) {
+                return INTERVAL_COLORS[name];
+            }
+        }
+    }
+
+    // Fallback: try direct lookup (for Russian names)
+    return INTERVAL_COLORS[intervalName] || 'inherit';
 };
