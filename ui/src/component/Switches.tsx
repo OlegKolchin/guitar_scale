@@ -68,8 +68,21 @@ export default function CustomizedSwitches() {
         hideEmptyScaleNotes,
         highlightCoreNote,
         showChordSequence,
-        language
+        language,
+        showOnlyScaleSuitable,
+        toggleShowOnlyScaleSuitable,
     } = useDefaultSettings();
+
+    // Stylish label styling with Poppins font
+    const labelStyle = {
+        '& .MuiFormControlLabel-label': {
+            fontFamily: "'Poppins', 'Inter', sans-serif",
+            fontWeight: 500,
+            letterSpacing: '0.5px',
+            fontSize: '15px',
+            color: '#2c3e50'
+        }
+    };
 
     return (
         <Stack direction="row" justifyContent="center" alignItems="center" sx={{ width: '100%', height: '35vh' }}>
@@ -78,24 +91,35 @@ export default function CustomizedSwitches() {
                     control={<IOSSwitch sx={{ m: 1 }} checked={hideEmptyScaleNotes} />}
                     label={getUIText('switches', 'show_scale_notes', language)}
                     onChange={toggleHideEmptyScaleNotes}
+                    sx={labelStyle}
                 />
 
                 <FormControlLabel
                     control={<IOSSwitch sx={{ m: 1 }} checked={highlightCoreNote} />}
                     label={getUIText('switches', 'highlight_tonic', language)}
                     onChange={toggleHighlightCoreNote}
+                    sx={labelStyle}
                 />
 
                 <FormControlLabel
                     control={<IOSSwitch sx={{ m: 1 }} checked={showScalePosition} />}
                     label={getUIText('switches', 'show_scale_degrees', language)}
                     onChange={toggleShowScalePosition}
+                    sx={labelStyle}
                 />
 
                 <FormControlLabel
                     control={<IOSSwitch sx={{ m: 1, ml: 3 }} checked={showChordSequence} disabled={!showScalePosition} />}
                     label={getUIText('switches', 'chord_mode', language)}
                     onChange={toggleShowChordSequence}
+                    sx={labelStyle}
+                />
+
+                <FormControlLabel
+                    control={<IOSSwitch sx={{ m: 1 }} checked={showOnlyScaleSuitable} />}
+                    label={getUIText('switches', 'show_only_scale_suitable', language)}
+                    onChange={toggleShowOnlyScaleSuitable}
+                    sx={labelStyle}
                 />
             </FormGroup>
         </Stack>

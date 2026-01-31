@@ -2,6 +2,7 @@ package com.guitar_scale.service;
 
 import com.guitar_scale.domain.*;
 import com.guitar_scale.repository.*;
+import com.guitar_scale.utils.ScaleUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -256,6 +257,8 @@ public class GuitarService {
                 positionIncrement = 3;
             } else if ("WW".equals(interval)) {
                 positionIncrement = 4;
+            } else if ("WWH".equals(interval)) {
+                positionIncrement = 5;
             }
 
             int calculatedAbsolutePosition = prevChordNote.getAbsolutePos() + positionIncrement;
@@ -270,10 +273,75 @@ public class GuitarService {
             prevChordNote = chordNote;
         }
 
-
-
-
         return rsl;
+    }
+
+    public boolean isIntervalInScale(String rootNoteName, String patternName, String intervalName, String intervalRootNoteName) {
+        List<ScaleItem> scale = createScale(rootNoteName, patternName);
+        BasicNote intervalNote = getBasicNoteByName(intervalRootNoteName).get();
+
+        return ScaleUtil.isIntervalInScale(scale, intervalName, intervalNote, getAllBasicNotes());
+    }
+
+    /**
+     * Filter multiple intervals at once for better performance
+     * Checks which intervals fit within the scale from the given root note
+     *
+     * @param rootNoteName Scale root note (e.g., "D")
+     * @param patternName Scale pattern (e.g., "Minor")
+     * @param intervalRootNoteName Clicked note (e.g., "E")
+     * @param intervalNames List of interval names to check
+     * @return List of interval names that fit in the scale
+     */
+    public List<String> filterIntervalsForScale(
+            String rootNoteName,
+            String patternName,
+            String intervalRootNoteName,
+            List<String> intervalNames) {
+
+        // Get the scale once (instead of creating it 17 times)
+        List<ScaleItem> scale = createScale(rootNoteName, patternName);
+
+        // Get the interval root note once
+        BasicNote intervalNote = getBasicNoteByName(intervalRootNoteName)
+                .orElseThrow(() -> new IllegalArgumentException("Note not found: " + intervalRootNoteName));
+
+        // Get all basic notes once
+        List<BasicNote> allNotes = getAllBasicNotes();
+
+        // Filter intervals using the utility
+        return intervalNames.stream()
+                .filter(intervalName -> {
+                    try {
+                        return ScaleUtil.isIntervalInScale(scale, intervalName, intervalNote, allNotes);
+                    } catch (Exception e) {
+                        // Log and skip invalid intervals
+                        logger.warn("Failed to check interval '{}': {}", intervalName, e.getMessage());
+                        return false;
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<String> filterChordsForScale(
+            String rootNoteName,
+            String patternName,
+            String chordRootNoteName
+    ) {
+        // 1. Get scale notes
+        List<ScaleItem> scale = createScale(rootNoteName, patternName);
+
+        List<BasicNote> allNotes = getAllBasicNotes();
+
+        // 2. Get chord root note
+        BasicNote chordRoot = getBasicNoteByName(chordRootNoteName).get();
+        List<ChordPattern> patternList = getAllChordPatterns();
+
+        // 3. For each chord, check if ALL its notes are in scale
+        return patternList.stream()
+                .filter(chordPattern -> ScaleUtil.isChordInScale(scale, chordPattern, chordRoot, allNotes))
+                .map(chordPattern -> chordPattern.getPatterName())
+                .collect(Collectors.toList());
     }
 
 //    public List<ScaleTemp> createScale(String noteName, String patternName, String scaleName) {

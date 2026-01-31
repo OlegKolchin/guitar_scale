@@ -4,17 +4,17 @@ import com.guitar_scale.domain.id.ScaleItemId;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
+//@Entity
 @Data
-@Table(name = "scale_item")
-@IdClass(ScaleItemId.class)
+//@Table(name = "scale_item")
+//@IdClass(ScaleItemId.class)
 public class ScaleItem {
-    @Id
+//    @Id
     private String scaleName;
 
-    @Id
+//    @Id
     private String noteName;
 
-    @Id
+//    @Id
     private String scalePos;
 }

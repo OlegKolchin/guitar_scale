@@ -51,8 +51,11 @@ interface DefaultSettingsContextType {
     intervalDestinationPos: number;
     intervalRootPos: number;
 
-    // Language State
+    // Language
     language: Language;
+
+    // ========== NEW: Scale Filter ==========
+    showOnlyScaleSuitable: boolean;
 
     // Actions
     toggleChordRootNote: (noteName: string) => void;
@@ -67,6 +70,9 @@ interface DefaultSettingsContextType {
     toggleIntervalRootPos: (absolutePos: number) => void;
     toggleChordSelection: (absolutePos: number, patternName: string) => void;
     toggleLanguage: () => void;
+
+    // ========== NEW: Scale Filter Action ==========
+    toggleShowOnlyScaleSuitable: () => void;
 }
 
 interface Props {
@@ -140,8 +146,11 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     const [isChordPatternsLoading, setIsChordPatternsLoading] = useState(false);
     const [selectedChordNotes, setSelectedChordNotes] = useState<number[]>([]);
 
-    // Language State
-    const [language, setLanguage] = useState<Language>('ru');  // Default: Russian
+    // Language
+    const [language, setLanguage] = useState<Language>('ru');
+
+    // ========== Scale Filter State ==========
+    const [showOnlyScaleSuitable, setShowOnlyScaleSuitable] = useState(false);
 
     // ------------------------------------------------------------------------
     // TOGGLE FUNCTIONS (Actions)
@@ -218,7 +227,6 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
                 tuningName
             );
 
-            // Extract absolute positions
             const positions = chordNotes.map(note => note.absolutePos);
             setSelectedChordNotes(positions);
         } catch (error) {
@@ -226,9 +234,13 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         }
     };
 
-    // Language Toggle
     const toggleLanguage = () => {
         setLanguage(prev => prev === 'en' ? 'ru' : 'en');
+    };
+
+    // ========== Scale Filter Toggle ==========
+    const toggleShowOnlyScaleSuitable = () => {
+        setShowOnlyScaleSuitable(prev => !prev);
     };
 
     // ------------------------------------------------------------------------
@@ -285,27 +297,21 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
     // EFFECTS
     // ------------------------------------------------------------------------
 
-    // Initial data load on mount
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                // Fetch default settings
                 const settingsData = await guitarApi.getDefaultSettings();
                 setDefaultSettings(settingsData);
 
-                // Fetch default tuning
                 const tuningData = await guitarApi.getTuningByName(settingsData.tuningName);
                 setTuning(tuningData);
 
-                // Fetch all saved tunings
                 const tuningMap = await guitarApi.getAllTunings();
                 setSavedTunings(tuningMap);
 
-                // Fetch fretboard
                 const fretBoardData = await guitarApi.getFretBoard(settingsData.tuningName);
                 setFretBoard(fretBoardData);
 
-                // Fetch scale
                 const scaleData = await guitarApi.createScale(
                     settingsData.coreNoteName,
                     settingsData.patternName
@@ -329,14 +335,12 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         fetchInitialData();
     }, []);
 
-    // Refetch scale when core note or pattern changes
     useEffect(() => {
         if (defaultSettings.coreNoteName && defaultSettings.patternName) {
             fetchScale(defaultSettings.coreNoteName, defaultSettings.patternName);
         }
     }, [defaultSettings.coreNoteName, defaultSettings.patternName]);
 
-    // Refetch scale when chord root note changes
     useEffect(() => {
         if (chordRootNote) {
             fetchChordScale(defaultSettings.coreNoteName, defaultSettings.patternName, chordRootNote);
@@ -345,7 +349,6 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         }
     }, [chordRootNote]);
 
-    // Refetch fretboard when tuning changes
     useEffect(() => {
         if (tuning?.[0]?.tuningName) {
             fetchFretBoard(tuning[0].tuningName);
@@ -383,6 +386,7 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         isChordPatternsLoading,
         selectedChordNotes,
         language,
+        showOnlyScaleSuitable,
 
         // Actions
         toggleChordRootNote,
@@ -396,7 +400,8 @@ export const DefaultSettingsProvider: React.FC<Props> = ({ children }) => {
         toggleIntervalDestinationPos,
         toggleIntervalRootPos,
         toggleChordSelection,
-        toggleLanguage
+        toggleLanguage,
+        toggleShowOnlyScaleSuitable
     };
 
     return (

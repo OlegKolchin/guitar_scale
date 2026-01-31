@@ -7,10 +7,6 @@ import {BasicNote} from "../interface/BasicNote";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-
-// API SERVICE
-// ============================================================================
-
 class GuitarApiService {
 
     // ------------------------------------------------------------------------
@@ -56,7 +52,6 @@ class GuitarApiService {
         }
         const data = await response.json();
 
-        // Convert frets object to Map
         const fretsMap = new Map(
             Object.entries(data.frets).map(([key, value]) => [parseInt(key, 10), value])
         );
@@ -95,9 +90,43 @@ class GuitarApiService {
         return await response.json();
     }
 
+    // ========== BATCH FILTER ENDPOINT ==========
+    /**
+     * Filter multiple intervals at once (BATCH endpoint)
+     */
+    async filterIntervalsForScale(
+        rootNoteName: string,
+        patternName: string,
+        intervalRootNoteName: string,
+        intervalNames: string[]
+    ): Promise<string[]> {
+        const params = new URLSearchParams({
+            rootNoteName,
+            patternName,
+            intervalRootNoteName
+        });
+
+        const response = await fetch(
+            `${API_BASE_URL}/scale/filterIntervalsForScale?${params}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(intervalNames)
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to filter intervals');
+        }
+
+        return await response.json();
+    }
+
     // ------------------------------------------------------------------------
-// CHORD ENDPOINTS
-// ------------------------------------------------------------------------
+    // CHORD ENDPOINTS
+    // ------------------------------------------------------------------------
 
     async getAllChordPatterns(): Promise<ChordPattern[]> {
         const response = await fetch(
@@ -133,6 +162,40 @@ class GuitarApiService {
         if (!response.ok) {
             throw new Error('Failed to fetch chordNotes');
         }
+        return await response.json();
+    }
+
+    /**
+     * Filter chords for scale
+     * Backend fetches all chords from DB and filters them
+     *
+     * @param rootNoteName - Scale root note (e.g., "D")
+     * @param patternName - Scale pattern (e.g., "Minor")
+     * @param chordRootNoteName - Clicked note (e.g., "E")
+     * @returns Promise with filtered chord names (English)
+     */
+    async filterChordsForScale(
+        rootNoteName: string,
+        patternName: string,
+        chordRootNoteName: string
+    ): Promise<string[]> {
+        const params = new URLSearchParams({
+            rootNoteName,
+            patternName,
+            chordRootNoteName
+        });
+
+        const response = await fetch(
+            `${API_BASE_URL}/scale/filterChordsForScale?${params}`,
+            {
+                method: 'GET'
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to filter chords');
+        }
+
         return await response.json();
     }
 }

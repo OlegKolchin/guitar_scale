@@ -153,8 +153,8 @@ INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Fully Dim
 -- INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Thirteenth Chord', 'WH-WW-WH-WW-WH-WW', 'm13');
 --
 -- Suspended Chords
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Suspended Second Chord', 'W-WW', 'sus2');
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Suspended Fourth Chord', 'WH-W', 'sus4');
+INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Suspended Second Chord', 'W-WWH', 'sus2');
+INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Suspended Fourth Chord', 'WWH-W', 'sus4');
 
 
 

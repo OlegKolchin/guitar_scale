@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Avatar, Grow, Menu, MenuItem, Typography } from "@mui/material";
+import React, { useMemo, useState, useEffect } from "react";
+import { Avatar, Grow, Menu, MenuItem, Typography, CircularProgress, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useDefaultSettings } from "../context/DefaultSettingsContext";
 import {
@@ -10,6 +10,7 @@ import { getChordColor } from "../constants/ChordColors";
 import { createContextMenuOptions, SubMenu } from "../constants/ContextMenuOptions";
 import { NOTE_DISPLAY } from "../constants/FretboardLayout";
 import { getChordDatabaseKey } from "../constants/Translations";
+import {filterChordsForScale, filterIntervalsForScale} from "../utils/ScaleIntervalFilter";
 
 interface MusicNoteProps {
     noteName: string;
@@ -34,16 +35,26 @@ const StyledAvatar = styled(Avatar)({
     boxShadow: NOTE_DISPLAY.BOX_SHADOW,
 });
 
+// ========== UPDATED: Apply Poppins font to menus ==========
 const StyledMenu = styled(Menu)(({ theme }) => ({
     '& .MuiPaper-root': {
         backgroundColor: '#e0e0e0',
+        borderRadius: '8px',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
     },
     '& .MuiMenuItem-root': {
+        fontFamily: "'Poppins', 'Inter', sans-serif",
+        fontWeight: 500,
+        letterSpacing: '0.5px',
+        fontSize: '15px',
+        padding: '10px 16px',
+        transition: 'background-color 0.2s ease',
         '&:hover': {
             backgroundColor: 'lightgray',
         },
         '&.Mui-selected': {
             backgroundColor: '#b0c4de',
+            fontWeight: 600,
         },
         '&.Mui-focusVisible': {
             backgroundColor: 'transparent',
@@ -71,7 +82,8 @@ const MusicNote: React.FC<MusicNoteProps> = ({
         intervalRootPos,
         toggleIntervalRootPos,
         toggleChordSelection,
-        language
+        language,
+        showOnlyScaleSuitable
     } = useDefaultSettings();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -80,9 +92,71 @@ const MusicNote: React.FC<MusicNoteProps> = ({
     const [activeMainOption, setActiveMainOption] = React.useState<string | null>(null);
     const open = Boolean(anchorEl);
 
-    const mainOptions = useMemo(() => {
+    const [filteredMenuOptions, setFilteredMenuOptions] = useState<SubMenu[]>([]);
+    const [isFilteringIntervals, setIsFilteringIntervals] = useState(false);
+
+    const baseMenuOptions = useMemo(() => {
         return createContextMenuOptions(language);
     }, [language]);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+
+        const filterMenu = async () => {
+            // If filter is OFF, use base options
+            if (!showOnlyScaleSuitable) {
+                setFilteredMenuOptions(baseMenuOptions);
+                return;
+            }
+
+            setIsFilteringIntervals(true);
+
+            try {
+                const intervalOptions = baseMenuOptions[0].subOptions; // All intervals
+                const chordOptions = baseMenuOptions[1].subOptions;     // All chords
+
+                // Filter intervals (parallel API calls for speed)
+                const [filteredIntervals, filteredChords] = await Promise.all([
+                    filterIntervalsForScale(
+                        defaultSettings.coreNoteName,
+                        defaultSettings.patternName,
+                        noteName,
+                        intervalOptions,
+                        language
+                    ),
+                    filterChordsForScale(
+                        defaultSettings.coreNoteName,
+                        defaultSettings.patternName,
+                        noteName,
+                        language
+                    )
+                ]);
+
+                // Create filtered menu with BOTH intervals and chords filtered
+                const filtered: SubMenu[] = [
+                    {
+                        label: baseMenuOptions[0].label,  // "Intervals" or "Интервалы"
+                        subOptions: filteredIntervals     // Filtered intervals
+                    },
+                    {
+                        label: baseMenuOptions[1].label,  // "Chords" or "Аккорды"
+                        subOptions: filteredChords        // Filtered chords
+                    }
+                ];
+
+                setFilteredMenuOptions(filtered);
+            } catch (error) {
+                console.error('Error filtering menu:', error);
+                setFilteredMenuOptions(baseMenuOptions);
+            } finally {
+                setIsFilteringIntervals(false);
+            }
+        };
+
+        filterMenu();
+    }, [open, showOnlyScaleSuitable, language, noteName, defaultSettings.coreNoteName, defaultSettings.patternName, baseMenuOptions]);
 
     const handleRightClick = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
@@ -107,25 +181,15 @@ const MusicNote: React.FC<MusicNoteProps> = ({
     };
 
     const handleSubMenuClick = (subOption: string) => {
-        console.log(`Param Name: ${activeMainOption}`);
-        console.log(`Param Value: ${subOption}`);
-        console.log(`Note Name: ${noteName}`);
-        console.log(`Absolute Position: ${absolutePosition}`);
-
         if (activeMainOption === 'Intervals' || activeMainOption === 'Интервалы') {
             handleIntervalSelection(subOption);
         } else if (activeMainOption === 'Chords' || activeMainOption === 'Аккорды') {
             handleChordSelection(absolutePosition, subOption);
-        } else {
-            // Handle other options
         }
 
         handleClose();
     };
 
-    /**
-     * Handle interval selection using data structure
-     */
     const handleIntervalSelection = (intervalName: string) => {
         const semitones = getIntervalSemitones(intervalName);
 
@@ -137,17 +201,8 @@ const MusicNote: React.FC<MusicNoteProps> = ({
         }
     };
 
-    /**
-     * ========== UPDATED: Handle chord selection with database key conversion ==========
-     */
     const handleChordSelection = (absoluteNotePosition: number, displayChordName: string) => {
-        // Convert display name (Russian or English) to database key
         const databaseKey = getChordDatabaseKey(displayChordName);
-
-        console.log(`Display name: ${displayChordName}`);
-        console.log(`Database key: ${databaseKey}`);
-
-        // Send database key to backend
         toggleChordSelection(absoluteNotePosition, databaseKey);
     };
 
@@ -226,48 +281,57 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                 }}
                 TransitionComponent={Grow}
             >
-                {mainOptions.map((option) => (
-                    <MenuItem
-                        key={option.label}
-                        onClick={(event) => handleMainMenuClick(event, option)}
-                        selected={activeMainOption === option.label}
-                        aria-haspopup="true"
-                        aria-controls="simple-menu-submenu"
-                    >
-                        <Typography variant="inherit">{option.label}</Typography>
-                        <StyledMenu
-                            id="simple-menu-submenu"
-                            anchorEl={subMenuAnchorEl}
-                            open={Boolean(subMenuAnchorEl) && currentSubOptions === option.subOptions}
-                            onClose={handleClose}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
-                            MenuListProps={{
-                                'aria-labelledby': 'submenu-button',
-                            }}
-                        >
-                            {currentSubOptions.map((subOption) => (
-                                <MenuItem
-                                    key={subOption}
-                                    onClick={() => handleSubMenuClick(subOption)}
-                                    sx={{
-                                        backgroundColor: (activeMainOption === 'Intervals' || activeMainOption === 'Интервалы')
-                                            ? getIntervalColor(subOption)
-                                            : getChordColor(subOption)
-                                    }}
-                                >
-                                    <Typography variant="inherit">{subOption}</Typography>
-                                </MenuItem>
-                            ))}
-                        </StyledMenu>
+                {isFilteringIntervals ? (
+                    <MenuItem disabled>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <CircularProgress size={16} />
+                            <Typography variant="inherit">Loading...</Typography>
+                        </Box>
                     </MenuItem>
-                ))}
+                ) : (
+                    filteredMenuOptions.map((option) => (
+                        <MenuItem
+                            key={option.label}
+                            onClick={(event) => handleMainMenuClick(event, option)}
+                            selected={activeMainOption === option.label}
+                            aria-haspopup="true"
+                            aria-controls="simple-menu-submenu"
+                        >
+                            <Typography variant="inherit">{option.label}</Typography>
+                            <StyledMenu
+                                id="simple-menu-submenu"
+                                anchorEl={subMenuAnchorEl}
+                                open={Boolean(subMenuAnchorEl) && currentSubOptions === option.subOptions}
+                                onClose={handleClose}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                }}
+                                MenuListProps={{
+                                    'aria-labelledby': 'submenu-button',
+                                }}
+                            >
+                                {currentSubOptions.map((subOption) => (
+                                    <MenuItem
+                                        key={subOption}
+                                        onClick={() => handleSubMenuClick(subOption)}
+                                        sx={{
+                                            backgroundColor: (activeMainOption === 'Intervals' || activeMainOption === 'Интервалы')
+                                                ? getIntervalColor(subOption)
+                                                : getChordColor(subOption)
+                                        }}
+                                    >
+                                        <Typography variant="inherit">{subOption}</Typography>
+                                    </MenuItem>
+                                ))}
+                            </StyledMenu>
+                        </MenuItem>
+                    ))
+                )}
             </StyledMenu>
         </React.Fragment>
     );

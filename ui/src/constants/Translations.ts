@@ -171,12 +171,16 @@ export const UI_TRANSLATIONS = {
         chord_mode: {
             en: 'Switch to chord mode on click',
             ru: 'По клику переключаться на ступени аккорда'
+        },
+        show_only_scale_suitable: {
+            en: 'Show only suitable intervals and chords for scale',
+            ru: 'Показывать только подходящие интервалы и аккорды для гаммы'
         }
     }
 } as const;
 
 /**
- * Get database key from display name (Russian or English)
+ * Get database key from chord display name (Russian or English)
  * CRITICAL: Use this before sending chord name to backend!
  */
 export const getChordDatabaseKey = (displayName: string): string => {
@@ -216,4 +220,68 @@ export const getUIText = (category: keyof typeof UI_TRANSLATIONS, key: string, l
     const category_obj = UI_TRANSLATIONS[category];
     // @ts-ignore
     return category_obj?.[key]?.[language] || key;
+};
+
+/**
+ * Convert interval display name (Russian or English) to backend interval name (English)
+ * Backend only understands English interval names
+ *
+ * @param displayName - Interval name in Russian or English
+ * @returns English interval name for backend
+ */
+export const getIntervalBackendName = (displayName: string): string => {
+    for (const [key, value] of Object.entries(INTERVAL_TRANSLATIONS)) {
+        if (value.en === displayName || value.ru === displayName) {
+            return value.en;
+        }
+    }
+    return displayName;
+};
+
+/**
+ * Convert array of interval display names to backend names
+ *
+ * @param displayNames - Array of interval names (RU or EN)
+ * @returns Array of English interval names for backend
+ */
+export const convertIntervalsToBackendNames = (displayNames: string[]): string[] => {
+    return displayNames.map(name => getIntervalBackendName(name));
+};
+
+/**
+ * Convert array of backend interval names to display names for current language
+ *
+ * @param backendNames - Array of English interval names from backend
+ * @param language - Current display language
+ * @returns Array of interval names in the specified language
+ */
+export const convertIntervalsToDisplayNames = (backendNames: string[], language: Language): string[] => {
+    return backendNames.map(backendName => {
+        for (const [key, value] of Object.entries(INTERVAL_TRANSLATIONS)) {
+            if (value.en === backendName) {
+                return value[language];
+            }
+        }
+        return backendName;
+    });
+};
+
+/**
+ * Convert array of backend chord names to display names for current language
+ *
+ * @param backendNames - Array of English chord names from backend
+ * @param language - Current display language
+ * @returns Array of chord names in the specified language
+ */
+export const convertChordsToDisplayNames = (backendNames: string[], language: Language): string[] => {
+    return backendNames.map(backendName => {
+        // Find the translation for this backend name
+        for (const [key, value] of Object.entries(CHORD_TRANSLATIONS)) {
+            if (value.dbKey === backendName) {
+                return value[language];  // Return in requested language
+            }
+        }
+        // If not found, return as-is
+        return backendName;
+    });
 };
