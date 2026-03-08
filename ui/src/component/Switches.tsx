@@ -85,43 +85,47 @@ export default function CustomizedSwitches() {
     };
 
     return (
-        <Stack direction="row" justifyContent="center" alignItems="center" sx={{ width: '100%', height: '35vh' }}>
-            <FormGroup>
+        // <Stack direction="row" justifyContent="center" alignItems="center" sx={{ width: '100%', height: '45vh' }}>
+            <FormGroup sx={{
+                alignItems: 'flex-start',
+                margin: '48px auto 24px',
+                width: 'fit-content'
+            }}>
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1 }} checked={hideEmptyScaleNotes} />}
+                    control={<IOSSwitch sx={{ m: 0.5 }} checked={hideEmptyScaleNotes} />}
                     label={getUIText('switches', 'show_scale_notes', language)}
                     onChange={toggleHideEmptyScaleNotes}
                     sx={labelStyle}
                 />
 
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1 }} checked={highlightCoreNote} />}
+                    control={<IOSSwitch sx={{ m: 0.5 }} checked={highlightCoreNote} />}
                     label={getUIText('switches', 'highlight_tonic', language)}
                     onChange={toggleHighlightCoreNote}
                     sx={labelStyle}
                 />
 
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1 }} checked={showScalePosition} />}
+                    control={<IOSSwitch sx={{ m: 0.5 }} checked={showScalePosition} />}
                     label={getUIText('switches', 'show_scale_degrees', language)}
                     onChange={toggleShowScalePosition}
                     sx={labelStyle}
                 />
 
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1, ml: 3 }} checked={showChordSequence} disabled={!showScalePosition} />}
+                    control={<IOSSwitch sx={{ m: 0.5, ml: 3 }} checked={showChordSequence} disabled={!showScalePosition} />}
                     label={getUIText('switches', 'chord_mode', language)}
                     onChange={toggleShowChordSequence}
                     sx={labelStyle}
                 />
 
                 <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1 }} checked={showOnlyScaleSuitable} />}
+                    control={<IOSSwitch sx={{ m: 0.5 }} checked={showOnlyScaleSuitable} />}
                     label={getUIText('switches', 'show_only_scale_suitable', language)}
                     onChange={toggleShowOnlyScaleSuitable}
                     sx={labelStyle}
                 />
             </FormGroup>
-        </Stack>
+        // </Stack>
     );
 }
