@@ -19,12 +19,6 @@ public class TuningController {
         this.guitarService = guitarService;
     }
 
-//    @PostMapping
-//    public void saveTuning(@RequestBody Tuning tuning) {
-//        String s = "s";
-//        guitarService.saveTuning(tuning);
-//    }
-
     @GetMapping("/fret")
     public FretBoard getFrets(@RequestParam String tuningName) {
         return guitarService.getFretBoardNew(tuningName);
