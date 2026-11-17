@@ -1,7 +1,6 @@
 package com.guitar_scale.service;
 
 import com.guitar_scale.domain.ScaleItem;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -74,8 +73,8 @@ class GuitarServiceScaleTest {
                 arguments("Harmonic Minor", heptatonic),
                 arguments("Melodic Minor", heptatonic),
                 arguments("Pentatonic Major", List.of("1", "2", "3", "5", "6")),
-                arguments("Pentatonic Minor", List.of("1", "3", "4", "5", "7"))
-                // Blues: see bluesLabelsTheFlatFifthBeforeTheFifth (BL-02)
+                arguments("Pentatonic Minor", List.of("1", "3", "4", "5", "7")),
+                arguments("Blues", List.of("1", "3", "4", "5♭", "5", "7"))
         );
     }
 
@@ -86,7 +85,6 @@ class GuitarServiceScaleTest {
     }
 
     @Test
-    @Disabled("BL-02: Blues labels 5 and 5♭ are swapped in data.sql; G# is the flat fifth, A the fifth")
     void bluesLabelsTheFlatFifthBeforeTheFifth() {
         assertThat(notesWithLabels(service.createScale("D", "Blues")))
                 .containsExactly("D(1)", "F(3)", "G(4)", "G#(5♭)", "A(5)", "C(7)");

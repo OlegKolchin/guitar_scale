@@ -15,6 +15,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -155,6 +156,15 @@ class ApiContractTest {
                         .param("rootNoteName", "D").param("patternName", "Minor").param("chordRootNoteName", "D"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(4)));
+    }
+
+    @Test
+    void filterChordsForScaleOnEInDMinorOffersTheDiminishedTriadAndTheHalfDiminishedSeventh() throws Exception {
+        // E G A# is a diminished triad, E G A# D a half-diminished seventh; both lie in D Minor (BL-01).
+        mvc.perform(get("/scale/filterChordsForScale")
+                        .param("rootNoteName", "D").param("patternName", "Minor").param("chordRootNoteName", "E"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", containsInAnyOrder("Diminished Triad", "Half-Diminished Seventh Chord")));
     }
 
     // ------------------------------------------------------------------ /chords

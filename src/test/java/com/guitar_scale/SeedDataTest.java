@@ -126,12 +126,7 @@ class SeedDataTest {
 
     @Test
     void scaleDegreeLabelsAscend() {
-        // Blues is excluded: its label order is covered by the disabled test
-        // GuitarServiceScaleTest.bluesLabelsTheFlatFifthBeforeTheFifth (BL-02).
         for (ScalePattern scale : all(scalePatternRepository.findAll())) {
-            if (scale.getPatterName().equals("Blues")) {
-                continue;
-            }
             List<Integer> keys = Arrays.stream(scale.getStepSequence().split("\\|"))
                     .map(SeedDataTest::degreeKey).toList();
             assertThat(keys).as(scale.getPatterName() + " " + scale.getStepSequence()).isSorted().doesNotHaveDuplicates();
@@ -139,7 +134,6 @@ class SeedDataTest {
     }
 
     @Test
-    @Disabled("NEW: data.sql is read with the platform charset; on Windows with JDK 17 (cp1251) the Blues label 5♭ is stored as mojibake")
     void degreeLabelsAreDigitsWithAnOptionalFlatOrSharp() {
         for (ScalePattern scale : all(scalePatternRepository.findAll())) {
             for (String label : scale.getStepSequence().split("\\|")) {
@@ -158,7 +152,6 @@ class SeedDataTest {
     }
 
     @Test
-    @Disabled("BL-01: Half-Diminished and Fully Diminished Seventh Chord share the pattern WH-WH-WH")
     void noTwoChordsShareAPattern() {
         List<String> patterns = all(chordPatternRepository.findAll()).stream().map(ChordPattern::getPattern).toList();
         assertThat(patterns).doesNotHaveDuplicates();

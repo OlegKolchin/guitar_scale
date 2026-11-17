@@ -29,7 +29,7 @@ insert into scale_pattern(pattern_name, pattern, step_sequence) values('Melodic 
 
 insert into scale_pattern(pattern_name, pattern, step_sequence) values('Pentatonic Major', 'W-W-WH-W', '1|2|3|5|6');
 insert into scale_pattern(pattern_name, pattern, step_sequence) values('Pentatonic Minor', 'WH-W-W-WH', '1|3|4|5|7');
-insert into scale_pattern(pattern_name, pattern, step_sequence) values('Blues', 'WH-W-H-H-WH', '1|3|4|5|5♭|7');
+insert into scale_pattern(pattern_name, pattern, step_sequence) values('Blues', 'WH-W-H-H-WH', '1|3|4|5♭|5|7');
 
 -- E STANDARD
 insert into tuning_item(tuning_name, string_no, note_name, octave) values ('E STANDARD', 6, 'E', 2);
@@ -134,7 +134,7 @@ INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Augmented
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Major Seventh Chord', 'WW-WH-WW', 'Maj7');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Dominant Seventh Chord', 'WW-WH-WH', '7');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Minor Seventh Chord', 'WH-WW-WH', 'm7');
-INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Half-Diminished Seventh Chord', 'WH-WH-WH', 'm7b5');
+INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Half-Diminished Seventh Chord', 'WH-WH-WW', 'm7b5');
 INSERT INTO chord_pattern (pattern_name, pattern, short_name) VALUES ('Fully Diminished Seventh Chord', 'WH-WH-WH', 'dim7');
 --
 -- -- Ninth Chords

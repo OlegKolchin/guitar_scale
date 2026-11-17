@@ -1,6 +1,5 @@
 package com.guitar_scale.service;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -83,7 +82,6 @@ class GuitarServiceFilterTest {
     }
 
     @Test
-    @Disabled("BL-01: Half-Diminished Seventh Chord has the dim7 pattern, so E G A# D is never offered")
     void filterChordsOnEInDMinorOffersDiminishedTriadAndHalfDiminishedSeventh() {
         assertThat(service.filterChordsForScale("D", "Minor", "E"))
                 .containsExactlyInAnyOrder("Diminished Triad", "Half-Diminished Seventh Chord");
