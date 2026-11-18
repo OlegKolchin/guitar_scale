@@ -246,7 +246,8 @@ public class GuitarService {
         BasicNote coreChordNote = getBasicNoteByAbsolutePosition(fretBoard, noteAbsolutePosition);
         rsl.add(coreChordNote);
 
-        BasicNote prevChordNote = coreChordNote;
+        // Running pitch: advances by every step, even when the tone is outside the fretboard (BL-29).
+        int runningAbsolutePosition = noteAbsolutePosition;
         for (String interval : patternIntervalsArray) {
 
             int positionIncrement = 0;
@@ -261,16 +262,14 @@ public class GuitarService {
                 positionIncrement = 5;
             }
 
-            int calculatedAbsolutePosition = prevChordNote.getAbsolutePos() + positionIncrement;
+            runningAbsolutePosition += positionIncrement;
 
-            if (calculatedAbsolutePosition < lowestAbsolutePosition ||  calculatedAbsolutePosition > highestAbsolutePosition) {
+            if (runningAbsolutePosition < lowestAbsolutePosition ||  runningAbsolutePosition > highestAbsolutePosition) {
                 continue;
             }
 
-            BasicNote chordNote = getBasicNoteByAbsolutePosition(fretBoard, prevChordNote.getAbsolutePos()+ positionIncrement);
+            BasicNote chordNote = getBasicNoteByAbsolutePosition(fretBoard, runningAbsolutePosition);
             rsl.add(chordNote);
-
-            prevChordNote = chordNote;
         }
 
         return rsl;

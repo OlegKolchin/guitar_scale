@@ -4,7 +4,6 @@ import com.guitar_scale.domain.BasicNote;
 import com.guitar_scale.domain.DefaultSettings;
 import com.guitar_scale.domain.Fret;
 import com.guitar_scale.domain.TuningItem;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -129,7 +128,11 @@ class GuitarServiceFretboardTest {
         return Stream.of(
                 arguments(27, "Minor Triad", List.of(27, 30, 34)),              // D3 F3 A3
                 arguments(37, "Major Seventh Chord", List.of(37, 41, 44, 48)),  // C4 E4 G4 B4
-                arguments(54, "Major Triad", List.of(54))                       // F5; A5 (58) and C6 (61) are above 56
+                arguments(54, "Major Triad", List.of(54)),                      // F5; A5 (58) and C6 (61) are above 56
+                arguments(53, "Minor Triad", List.of(53, 56)),                  // E5 G5; B5 (60) is above 56
+                arguments(51, "Major Seventh Chord", List.of(51, 55)),          // D5 F#5; A5 (58) and C#6 (62) are above 56
+                arguments(49, "Major Triad", List.of(49, 53, 56)),              // C5 E5 G5, fits entirely
+                arguments(53, "Half-Diminished Seventh Chord", List.of(53, 56)) // E5 G5; A#5 (59) and D6 (63) are above 56
         );
     }
 
@@ -142,7 +145,6 @@ class GuitarServiceFretboardTest {
     }
 
     @Test
-    @Disabled("BL-29: after a skipped out-of-range tone the next step is added to the last kept note; E5 Major Triad returns 53 and 56 (G5)")
     void calculateChordNotesNeverAddsANoteOutsideTheChordAfterASkippedTone() {
         // E5 (53) Major Triad: G#5 (57) and B5 (60) are above the top of the fretboard (56).
         // G5 (56) must not appear: G is not in E major.

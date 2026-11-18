@@ -3,6 +3,10 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/ui/**/build/
+!**/src/main/resources/**/static/
+
+src/main/resources/**/static/
 
 ### STS ###
 .apt_generated
