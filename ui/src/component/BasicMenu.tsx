@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
 import QueueMusic from '@mui/icons-material/QueueMusic';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
@@ -12,6 +13,8 @@ import PatternPopover from "../domain/PatternPopover";
 import TuningPopover from "../domain/TuningPopover";
 import * as Tone from 'tone';
 import { ScaleItem } from '../interface/ScaleItem';
+import { UI_FONT_FAMILY } from '../constants/Typography';
+import { getScaleDisplayName, getUIText } from '../constants/Translations';
 
 // ============================================================================
 // CONSTANTS
@@ -39,6 +42,12 @@ const MAIN_BUTTON_STYLE = new MainButton(
     '#d1d1d1',
     '5px 5px 10px #a3a3a3, -5px -5px 10px #ffffff'
 );
+
+// Reaches the top buttons and, through React context, the buttons inside their portalled menus.
+// Only the button variant is overridden: a theme-wide fontFamily would also drop MUI's letter spacing.
+const MENU_THEME = createTheme({
+    typography: { button: { fontFamily: UI_FONT_FAMILY } }
+});
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -136,6 +145,7 @@ export default function BasicMenu() {
         tuning,
         savedTunings,
         scale,
+        language,
         toggleSelectRootNote,
         toggleSelectPattern,
         toggleSelectTuning
@@ -215,6 +225,7 @@ export default function BasicMenu() {
     // ------------------------------------------------------------------------
 
     return (
+        <ThemeProvider theme={MENU_THEME}>
         <Box
             sx={{
                 display: 'flex',
@@ -237,7 +248,7 @@ export default function BasicMenu() {
                     endIcon={<QueueMusic color="success" />}
                     onClick={handlePatternPopoverOpen}
                 >
-                    {defaultSettings.patternName}
+                    {getScaleDisplayName(defaultSettings.patternName, language)}
                 </StyledButton>
 
                 <StyledButton
@@ -253,7 +264,7 @@ export default function BasicMenu() {
                     endIcon={<BubbleChartIcon color="secondary" />}
                     onClick={handlePlayScale}
                 >
-                    PLAY SCALE
+                    {getUIText('top_menu', 'play_scale', language)}
                 </StyledButton>
             </Stack>
 
@@ -282,5 +293,6 @@ export default function BasicMenu() {
                 tunings={tuningsList}
             />
         </Box>
+        </ThemeProvider>
     );
 }

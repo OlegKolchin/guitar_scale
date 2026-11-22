@@ -142,9 +142,72 @@ export const INTERVAL_TRANSLATIONS = {
 } as const;
 
 /**
+ * Scale name translations, keyed by scale_pattern.pattern_name
+ * For display only: state and requests keep the key
+ */
+export const SCALE_TRANSLATIONS: Record<string, Record<Language, string>> = {
+    'Minor': {
+        en: 'Minor',
+        ru: 'Минор'
+    },
+    'Major': {
+        en: 'Major',
+        ru: 'Мажор'
+    },
+    'Dorian': {
+        en: 'Dorian',
+        ru: 'Дорийский'
+    },
+    'Phrygian': {
+        en: 'Phrygian',
+        ru: 'Фригийский'
+    },
+    'Mixolydian': {
+        en: 'Mixolydian',
+        ru: 'Миксолидийский'
+    },
+    'Locrian': {
+        en: 'Locrian',
+        ru: 'Локрийский'
+    },
+    'Harmonic Minor': {
+        en: 'Harmonic Minor',
+        ru: 'Гармонический минор'
+    },
+    'Melodic Minor': {
+        en: 'Melodic Minor',
+        ru: 'Мелодический минор'
+    },
+    'Pentatonic Major': {
+        en: 'Pentatonic Major',
+        ru: 'Пентатоника мажорная'
+    },
+    'Pentatonic Minor': {
+        en: 'Pentatonic Minor',
+        ru: 'Пентатоника минорная'
+    },
+    'Blues': {
+        en: 'Blues',
+        ru: 'Блюз'
+    }
+};
+
+/**
  * UI text translations
  */
 export const UI_TRANSLATIONS = {
+    top_menu: {
+        play_scale: {
+            en: 'Play scale',
+            ru: 'Сыграть гамму'
+        }
+    },
+    note_menu: {
+        loading: {
+            en: 'Loading…',
+            ru: 'Загрузка…'
+        }
+    },
     menu: {
         intervals: {
             en: 'Intervals',
@@ -173,8 +236,8 @@ export const UI_TRANSLATIONS = {
             ru: 'По клику переключаться на ступени аккорда'
         },
         show_only_scale_suitable: {
-            en: 'Show only suitable intervals and chords for scale',
-            ru: 'Показывать только подходящие интервалы и аккорды для гаммы'
+            en: 'Only intervals and chords from the scale',
+            ru: 'Только интервалы и аккорды из гаммы'
         }
     }
 } as const;
@@ -204,6 +267,13 @@ export const getChordMenuOptions = (language: Language): string[] => {
  */
 export const getIntervalMenuOptions = (language: Language): string[] => {
     return Object.values(INTERVAL_TRANSLATIONS).map(interval => interval[language]);
+};
+
+/**
+ * Get scale display name; a scale without a translation is shown by its backend name
+ */
+export const getScaleDisplayName = (backendName: string, language: Language): string => {
+    return SCALE_TRANSLATIONS[backendName]?.[language] ?? backendName;
 };
 
 /**

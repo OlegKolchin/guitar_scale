@@ -13,6 +13,7 @@ import {
     IconFilter,
 } from '@tabler/icons-react';
 import { getUIText } from '../constants/Translations';
+import { UI_FONT_FAMILY } from '../constants/Typography';
 import { useDefaultSettings } from "../context/DefaultSettingsContext";
 
 const ACCENT = '#199383';
@@ -114,7 +115,7 @@ function SwitchRow({ icon, label, checked, onChange, disabled = false, divider =
                     mr: 0,
                     gap: 2,
                     '& .MuiFormControlLabel-label': {
-                        fontFamily: "'Poppins', 'Inter', sans-serif",
+                        fontFamily: UI_FONT_FAMILY,
                         fontWeight: 500,
                         letterSpacing: '0.3px',
                         fontSize: '14px',

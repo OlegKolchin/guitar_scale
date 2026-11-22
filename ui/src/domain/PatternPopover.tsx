@@ -1,6 +1,8 @@
 // NotePopover.tsx
 import React from 'react';
 import { Popover, Button, styled } from '@mui/material';
+import { useDefaultSettings } from '../context/DefaultSettingsContext';
+import { getScaleDisplayName } from '../constants/Translations';
 
 interface PatternPopoverProps {
     anchorEl: HTMLElement | null;
@@ -31,6 +33,8 @@ const PatternButton = styled(Button, {
 }));
 
 const PatternPopover: React.FC<PatternPopoverProps> = ({ anchorEl, open, onClose, onPatternSelect, selectedPattern }) => {
+    const { language } = useDefaultSettings();
+
     return (
         <Popover
             open={open}
@@ -56,7 +60,7 @@ const PatternPopover: React.FC<PatternPopoverProps> = ({ anchorEl, open, onClose
                         onClick={() => onPatternSelect(pattern)}
                         isSelected={pattern === selectedPattern}
                     >
-                        {pattern}
+                        {getScaleDisplayName(pattern, language)}
                     </PatternButton>
                 ))}
             </PatternContainer>

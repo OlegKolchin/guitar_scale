@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, Grow, Menu, MenuItem, Typography, CircularProgress, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useDefaultSettings } from "../context/DefaultSettingsContext";
@@ -9,8 +9,35 @@ import {
 import { getChordColor } from "../constants/ChordColors";
 import { createContextMenuOptions, SubMenu } from "../constants/ContextMenuOptions";
 import { NOTE_DISPLAY } from "../constants/FretboardLayout";
-import { getChordDatabaseKey } from "../constants/Translations";
+import {
+    Language,
+    convertChordsToDisplayNames,
+    convertIntervalsToDisplayNames,
+    getMenuLabel,
+    getUIText,
+} from "../constants/Translations";
+import { UI_FONT_FAMILY } from "../constants/Typography";
 import {filterChordsForScale, filterIntervalsForScale} from "../utils/ScaleIntervalFilter";
+
+type MenuKey = 'intervals' | 'chords';
+
+interface MenuOption {
+    key: MenuKey;
+    subOptions: SubMenu['subOptions'];
+}
+
+// Options hold canonical names, which are the English ones, and are translated only when rendered.
+const CANONICAL_LANGUAGE: Language = 'en';
+const [INTERVAL_MENU, CHORD_MENU] = createContextMenuOptions(CANONICAL_LANGUAGE);
+const BASE_MENU_OPTIONS: MenuOption[] = [
+    { key: 'intervals', subOptions: INTERVAL_MENU.subOptions },
+    { key: 'chords', subOptions: CHORD_MENU.subOptions },
+];
+
+const getOptionDisplayName = (menu: MenuKey, name: string, language: Language): string => {
+    const toDisplayNames = menu === 'intervals' ? convertIntervalsToDisplayNames : convertChordsToDisplayNames;
+    return toDisplayNames([name], language)[0];
+};
 
 interface MusicNoteProps {
     noteName: string;
@@ -35,7 +62,7 @@ const StyledAvatar = styled(Avatar)({
     boxShadow: NOTE_DISPLAY.BOX_SHADOW,
 });
 
-// ========== UPDATED: Apply Poppins font to menus ==========
+// Menus are portalled out of the app, so they set the UI font themselves
 const StyledMenu = styled(Menu)(({ theme }) => ({
     '& .MuiPaper-root': {
         backgroundColor: '#e0e0e0',
@@ -43,7 +70,7 @@ const StyledMenu = styled(Menu)(({ theme }) => ({
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
     },
     '& .MuiMenuItem-root': {
-        fontFamily: "'Poppins', 'Inter', sans-serif",
+        fontFamily: UI_FONT_FAMILY,
         fontWeight: 500,
         letterSpacing: '0.5px',
         fontSize: '15px',
@@ -89,15 +116,11 @@ const MusicNote: React.FC<MusicNoteProps> = ({
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [subMenuAnchorEl, setSubMenuAnchorEl] = React.useState<null | HTMLElement>(null);
     const [currentSubOptions, setCurrentSubOptions] = React.useState<string[]>([]);
-    const [activeMainOption, setActiveMainOption] = React.useState<string | null>(null);
+    const [activeMainOption, setActiveMainOption] = React.useState<MenuKey | null>(null);
     const open = Boolean(anchorEl);
 
-    const [filteredMenuOptions, setFilteredMenuOptions] = useState<SubMenu[]>([]);
+    const [filteredMenuOptions, setFilteredMenuOptions] = useState<MenuOption[]>([]);
     const [isFilteringIntervals, setIsFilteringIntervals] = useState(false);
-
-    const baseMenuOptions = useMemo(() => {
-        return createContextMenuOptions(language);
-    }, [language]);
 
     useEffect(() => {
         if (!open) {
@@ -107,15 +130,14 @@ const MusicNote: React.FC<MusicNoteProps> = ({
         const filterMenu = async () => {
             // If filter is OFF, use base options
             if (!showOnlyScaleSuitable) {
-                setFilteredMenuOptions(baseMenuOptions);
+                setFilteredMenuOptions(BASE_MENU_OPTIONS);
                 return;
             }
 
             setIsFilteringIntervals(true);
 
             try {
-                const intervalOptions = baseMenuOptions[0].subOptions; // All intervals
-                const chordOptions = baseMenuOptions[1].subOptions;     // All chords
+                const intervalOptions = INTERVAL_MENU.subOptions; // All intervals
 
                 // Filter intervals (parallel API calls for speed)
                 const [filteredIntervals, filteredChords] = await Promise.all([
@@ -124,24 +146,24 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                         defaultSettings.patternName,
                         noteName,
                         intervalOptions,
-                        language
+                        CANONICAL_LANGUAGE
                     ),
                     filterChordsForScale(
                         defaultSettings.coreNoteName,
                         defaultSettings.patternName,
                         noteName,
-                        language
+                        CANONICAL_LANGUAGE
                     )
                 ]);
 
                 // Create filtered menu with BOTH intervals and chords filtered
-                const filtered: SubMenu[] = [
+                const filtered: MenuOption[] = [
                     {
-                        label: baseMenuOptions[0].label,  // "Intervals" or "Интервалы"
+                        key: 'intervals',
                         subOptions: filteredIntervals     // Filtered intervals
                     },
                     {
-                        label: baseMenuOptions[1].label,  // "Chords" or "Аккорды"
+                        key: 'chords',
                         subOptions: filteredChords        // Filtered chords
                     }
                 ];
@@ -149,14 +171,14 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                 setFilteredMenuOptions(filtered);
             } catch (error) {
                 console.error('Error filtering menu:', error);
-                setFilteredMenuOptions(baseMenuOptions);
+                setFilteredMenuOptions(BASE_MENU_OPTIONS);
             } finally {
                 setIsFilteringIntervals(false);
             }
         };
 
         filterMenu();
-    }, [open, showOnlyScaleSuitable, language, noteName, defaultSettings.coreNoteName, defaultSettings.patternName, baseMenuOptions]);
+    }, [open, showOnlyScaleSuitable, noteName, defaultSettings.coreNoteName, defaultSettings.patternName]);
 
     const handleRightClick = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
@@ -169,21 +191,21 @@ const MusicNote: React.FC<MusicNoteProps> = ({
         setActiveMainOption(null);
     };
 
-    const handleMainMenuClick = (event: React.MouseEvent<HTMLElement>, option: SubMenu) => {
-        if (activeMainOption === option.label) {
+    const handleMainMenuClick = (event: React.MouseEvent<HTMLElement>, option: MenuOption) => {
+        if (activeMainOption === option.key) {
             setSubMenuAnchorEl(null);
             setActiveMainOption(null);
         } else {
             setSubMenuAnchorEl(anchorEl);
             setCurrentSubOptions(option.subOptions);
-            setActiveMainOption(option.label);
+            setActiveMainOption(option.key);
         }
     };
 
     const handleSubMenuClick = (subOption: string) => {
-        if (activeMainOption === 'Intervals' || activeMainOption === 'Интервалы') {
+        if (activeMainOption === 'intervals') {
             handleIntervalSelection(subOption);
-        } else if (activeMainOption === 'Chords' || activeMainOption === 'Аккорды') {
+        } else if (activeMainOption === 'chords') {
             handleChordSelection(absolutePosition, subOption);
         }
 
@@ -201,9 +223,8 @@ const MusicNote: React.FC<MusicNoteProps> = ({
         }
     };
 
-    const handleChordSelection = (absoluteNotePosition: number, displayChordName: string) => {
-        const databaseKey = getChordDatabaseKey(displayChordName);
-        toggleChordSelection(absoluteNotePosition, databaseKey);
+    const handleChordSelection = (absoluteNotePosition: number, chordName: string) => {
+        toggleChordSelection(absoluteNotePosition, chordName);
     };
 
     const isNoteInChord = (absolutePosition: number): boolean => {
@@ -285,19 +306,19 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                     <MenuItem disabled>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <CircularProgress size={16} />
-                            <Typography variant="inherit">Loading...</Typography>
+                            <Typography variant="inherit">{getUIText('note_menu', 'loading', language)}</Typography>
                         </Box>
                     </MenuItem>
                 ) : (
                     filteredMenuOptions.map((option) => (
                         <MenuItem
-                            key={option.label}
+                            key={option.key}
                             onClick={(event) => handleMainMenuClick(event, option)}
-                            selected={activeMainOption === option.label}
+                            selected={activeMainOption === option.key}
                             aria-haspopup="true"
                             aria-controls="simple-menu-submenu"
                         >
-                            <Typography variant="inherit">{option.label}</Typography>
+                            <Typography variant="inherit">{getMenuLabel(option.key, language)}</Typography>
                             <StyledMenu
                                 id="simple-menu-submenu"
                                 anchorEl={subMenuAnchorEl}
@@ -320,12 +341,12 @@ const MusicNote: React.FC<MusicNoteProps> = ({
                                         key={subOption}
                                         onClick={() => handleSubMenuClick(subOption)}
                                         sx={{
-                                            backgroundColor: (activeMainOption === 'Intervals' || activeMainOption === 'Интервалы')
+                                            backgroundColor: option.key === 'intervals'
                                                 ? getIntervalColor(subOption)
                                                 : getChordColor(subOption)
                                         }}
                                     >
-                                        <Typography variant="inherit">{subOption}</Typography>
+                                        <Typography variant="inherit">{getOptionDisplayName(option.key, subOption, language)}</Typography>
                                     </MenuItem>
                                 ))}
                             </StyledMenu>

@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
 import { useDefaultSettings } from '../context/DefaultSettingsContext';
+import { UI_FONT_FAMILY } from '../constants/Typography';
 
 const LanguageToggle: React.FC = () => {
     const { language, toggleLanguage } = useDefaultSettings();
+
+    useEffect(() => {
+        document.documentElement.lang = language;
+    }, [language]);
 
     return (
         <Button
@@ -19,7 +24,7 @@ const LanguageToggle: React.FC = () => {
                 fontWeight: 'bold',
                 zIndex: 1000,
                 backgroundColor: '#4169E1',
-                fontFamily: "'Poppins', 'Inter', sans-serif",
+                fontFamily: UI_FONT_FAMILY,
                 letterSpacing: '0.5px',
                 '&:hover': {
                     backgroundColor: '#1E90FF',
