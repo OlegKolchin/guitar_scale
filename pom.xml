@@ -63,6 +63,14 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <!-- Not a resources exclude: this also drops stale copies in target/classes -->
+                    <packagingExcludes>WEB-INF/classes/**/*.p12</packagingExcludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
