@@ -107,6 +107,8 @@ class ScaleUtilTest {
             "Major Seventh Chord,    WW-WH-WW, F, true",   // F A C E
             "Dominant Seventh Chord, WW-WH-WH, C, true",   // C E G A#
             "Dominant Seventh Chord, WW-WH-WH, F, false",  // F A C D#
+            "Augmented Triad,        WW-WW,    C#, false", // C# F A: root not in D Minor (BL-40)
+            "Diminished Triad,       WH-WH,    C#, false", // C# E G: root not in D Minor (BL-40)
     })
     void isChordInScaleRequiresEveryChordToneInDMinor(String chordName, String pattern, String root, boolean expected) {
         assertThat(ScaleUtil.isChordInScale(D_MINOR, chord(chordName, pattern), note(root), NOTES))

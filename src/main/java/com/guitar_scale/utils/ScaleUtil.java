@@ -95,6 +95,11 @@ public class ScaleUtil {
                 .map(ScaleItem::getNoteName)
                 .collect(Collectors.toSet());
 
+        // The root is a chord tone too: a chord on a note outside the scale never fits (BL-40)
+        if (!scaleNotes.contains(chordRootNote.getNoteName())) {
+            return false;
+        }
+
         String[] patternIntervalsArray = chordPattern.getPattern().split("-");
 
         int basicNoteIndex = chordRootNote.getBasicPos() - 1;
