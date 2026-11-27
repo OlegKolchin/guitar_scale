@@ -10,7 +10,6 @@ import com.guitar_scale.repository.ChordPatternRepository;
 import com.guitar_scale.repository.DefaultSettingsRepository;
 import com.guitar_scale.repository.ScalePatternRepository;
 import com.guitar_scale.repository.TuningItemRepository;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,8 +43,8 @@ class SeedDataTest {
     private static final List<String> NOTE_NAMES =
             List.of("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B");
 
-    /** Tunings with known seed-data problems, tested separately (BL-03). */
-    private static final Set<String> SUSPECT_TUNINGS = Set.of("DROP A", "DROP G");
+    /** Tunings whose seed data was wrong until BL-03; they also have their own tests below. */
+    private static final Set<String> BL03_TUNINGS = Set.of("DROP A", "DROP G");
 
     /** Largest interval between adjacent open strings in any real tuning: a perfect fifth (drop tunings). */
     private static final int MAX_ADJACENT_STRING_INTERVAL = 7;
@@ -176,34 +175,40 @@ class SeedDataTest {
 
     @Test
     void pitchStrictlyDescendsFromStringOneToTheLastString() {
-        tuningsByName().forEach((name, strings) -> {
-            if (!SUSPECT_TUNINGS.contains(name)) {
+        tuningsByName().forEach((name, strings) ->
                 assertThat(strings.stream().map(SeedDataTest::pitch).toList()).as(name)
-                        .isSortedAccordingTo((a, b) -> b - a).doesNotHaveDuplicates();
-            }
-        });
+                        .isSortedAccordingTo((a, b) -> b - a).doesNotHaveDuplicates());
     }
 
     @Test
     void adjacentOpenStringsAreAtMostAPerfectFifthApart() {
-        // Not in the original TESTING.md list: added because DROP G passes the descending check
-        // above while its string 1 is 17 semitones above string 2 (BL-03).
+        // Not in the original TESTING.md list: added because the old DROP G passed the descending
+        // check above while its string 1 was 17 semitones above string 2 (BL-03).
         tuningsByName().forEach((name, strings) -> {
-            if (!SUSPECT_TUNINGS.contains(name)) {
-                for (int i = 1; i < strings.size(); i++) {
-                    assertThat(Math.abs(pitch(strings.get(i - 1)) - pitch(strings.get(i))))
-                            .as("%s strings %d-%d", name, i, i + 1)
-                            .isLessThanOrEqualTo(MAX_ADJACENT_STRING_INTERVAL);
-                }
+            for (int i = 1; i < strings.size(); i++) {
+                assertThat(Math.abs(pitch(strings.get(i - 1)) - pitch(strings.get(i))))
+                        .as("%s strings %d-%d", name, i, i + 1)
+                        .isLessThanOrEqualTo(MAX_ADJACENT_STRING_INTERVAL);
             }
         });
     }
 
+    /** Open strings 1 to 6 as confirmed by the owner (BL-03). */
     @Test
-    @Disabled("BL-03: DROP A strings are in reverse order and DROP G string 1 is an octave too high; owner to confirm the notes")
+    void dropAAndDropGHaveTheOpenStringsConfirmedByTheOwner() {
+        Map<String, List<TuningItem>> tunings = tuningsByName();
+        // Drop A: B standard with string 6 lowered a whole step to A1
+        assertThat(tunings.get("DROP A")).extracting(item -> item.getNoteName() + item.getOctave())
+                .containsExactly("B3", "F#3", "D3", "A2", "E2", "A1");
+        // Drop G: A standard with string 6 lowered a whole step to G1
+        assertThat(tunings.get("DROP G")).extracting(item -> item.getNoteName() + item.getOctave())
+                .containsExactly("A3", "E3", "C3", "G2", "D2", "G1");
+    }
+
+    @Test
     void dropAAndDropGDescendInPitchWithAtMostAFifthBetweenStrings() {
         Map<String, List<TuningItem>> tunings = tuningsByName();
-        for (String name : SUSPECT_TUNINGS) {
+        for (String name : BL03_TUNINGS) {
             List<TuningItem> strings = tunings.get(name);
             for (int i = 1; i < strings.size(); i++) {
                 int interval = pitch(strings.get(i - 1)) - pitch(strings.get(i));

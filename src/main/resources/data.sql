@@ -64,12 +64,12 @@ insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP
 insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP C', 1, 'D', 4);
 
 -- DROP A
-insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 6, 'B', 2);
-insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 5, 'F#', 3);
-insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 4, 'D', 3);
-insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 3, 'A', 2);
-insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 2, 'E', 2);
-insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 1, 'A', 1);
+insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 6, 'A', 1);
+insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 5, 'E', 2);
+insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 4, 'A', 2);
+insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 3, 'D', 3);
+insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 2, 'F#', 3);
+insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP A', 1, 'B', 3);
 
 -- DROP B
 insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP B', 6, 'B', 1);
@@ -85,7 +85,7 @@ insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP
 insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP G', 4, 'G', 2);
 insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP G', 3, 'C', 3);
 insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP G', 2, 'E', 3);
-insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP G', 1, 'A', 4);
+insert into tuning_item(tuning_name, string_no, note_name, octave) values ('DROP G', 1, 'A', 3);
 
 
 -- DROP A7
